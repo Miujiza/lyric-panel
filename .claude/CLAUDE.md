@@ -29,8 +29,7 @@ C:\Users\HP\Downloads\AI\Lyric Test\
                         pipeline.py = the old single-run script, unused, kept as the fallback. The .sh / qa.py files are old helpers.
     _tmp\               args/result json for each host call, panel_log.txt, check.html (browser preview stub),
                         backups main.before-*.js / host.before-*.jsx from 2026-10-08 (safe to delete once things are stable)
-  Pipeline Tests\       timing benchmark (see "Lyric timing accuracy")
-  qq\                   a stray test song (qq.mp3 + lyrics.txt), not used by anything
+  .git, .gitignore      version history; pushed to the private GitHub repo https://github.com/Miujiza/lyric-panel (see "Working notes")
 C:\Users\HP\Downloads\Lyrics\<Channel>\    the song folders (the user moved them here on 2026-10-08):
                         <Song>\<Song>.mp3, <Song>.srt, lyrics.txt, vocals.wav, words.json, runs\, logs
 C:\Users\HP\Documents\Lyric Library\       SRTs saved from the timeline after the user's corrections
@@ -96,7 +95,7 @@ Unwired code still in the files: `centerLyrics` / `LPFN.exportFrame` (failed in 
 
 ## Lyric timing accuracy (work of 2026-10-07 and 2026-10-08, finished for now)
 
-The user corrected all 16 Rock Tunes songs by hand and saved them to the Lyric Library; that is the answer key (406 lyric starts, 81 of them moved by the user). Benchmark in `Pipeline Tests\`: `key.json` (first-word index + corrected start per lyric; made by `make_key.py`), `run_variant.py <name> <model> [script]` (writes to `out\<name>\`, never touches song folders, resumable, `BENCH_SONGS` to limit songs, `VOCALS_FROM` for other vocals), `score.py`, `score_rule.py` (with and without the rule), `ensemble_test.py` (combining variants), `pipeline_current.py` (copy of the old pipeline), `pipeline_opts.py` (= the plugin's `pipeline_run.py`), `combine.py` / `v2_time.py` / `v2_bench.py` (the test version of what is now in the plugin), `out\small-opts`, `out\medium`, `out\v2`, `out\rms`. The scripts point at `C:\Users\HP\Downloads\Lyrics\Rock Tunes` and still run (checked 2026-10-08).
+The user corrected all 16 Rock Tunes songs by hand and saved them to the Lyric Library; that is the answer key (406 lyric starts, 81 of them moved by the user). The `Pipeline Tests\` folder was removed from the project by the user on 2026-10-08 (testing is finished, they want the project clean). Its scripts and `key.json` are in git commit `6f12602` (`git show 6f12602:"Pipeline Tests/score.py"`, or `git checkout 6f12602 -- "Pipeline Tests"` to bring them back; they find their own folder via `__file__`); the `out\` results were never in git (lyric text) and would need about a day of computing to recreate. What the benchmark was: `key.json` (first-word index + corrected start per lyric; made by `make_key.py`), `run_variant.py <name> <model> [script]` (writes to `out\<name>\`, never touches song folders, resumable, `BENCH_SONGS` to limit songs, `VOCALS_FROM` for other vocals), `score.py`, `score_rule.py` (with and without the rule), `ensemble_test.py` (combining variants), `pipeline_current.py` (copy of the old pipeline), `pipeline_opts.py` (= the plugin's `pipeline_run.py`), `combine.py` / `v2_time.py` / `v2_bench.py` (the test version of what is now in the plugin), `out\small-opts`, `out\medium`, `out\v2`, `out\rms`. The scripts point at `C:\Users\HP\Downloads\Lyrics\Rock Tunes` and still run (checked 2026-10-08).
 
 Only two measures are trustworthy: lyrics more than 1 s off, and how many of the 81 moved lyrics land within 0.3 s. For the 325 untouched lyrics the key only says the old position was acceptable (the user tolerates a lyric a little early and corrects one 0.1 s+ late), so any other method looks worse there than it is. One-song results are noise.
 
@@ -127,6 +126,8 @@ On the first fresh song timed with the three-run method (Dance Pilot, 2026-10-08
 7. Space: `vocals.wav` (about 40 MB per song) stays in every song folder; it is only needed to re-time a song.
 
 ## Working notes for the next session
+
+- Git (set up 2026-10-08): the project folder is a git repo, branch `main`, remote `origin` = the user's private GitHub repo `Miujiza/lyric-panel`; sign-in is stored by Git Credential Manager, `gh` is not installed. The user does not run git: commit and push at the end of a session once something is confirmed working, instead of making `*.before-*` copies. `core.autocrlf` is off so files are never altered. Never add audio, song folders, anything containing lyric text, or `_tmp` logs (see `.gitignore`).
 
 - No Node: to check `main.js`, serve `LyricPanel\` with `python -m http.server` through a temporary `.claude\launch.json` + the Browser pane's preview_start, open `/_tmp/check.html` (fake `req`, `cep`, `__adobe_cep__`) and read `window.__errors`; delete the launch.json afterwards. Opening the file directly only gives a static snapshot.
 - Bash heredocs on this machine eat backslashes. For multi-line patches, write a `.py` file with the Write tool and run it.
