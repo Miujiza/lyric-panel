@@ -1,0 +1,21 @@
+# Audio, models and other large or copyrighted material never go in
+*.mp3
+*.wav
+*.m4a
+*.flac
+*.npy
+*.pt
+
+# Panel scratch files: call args/results, the log, old backups (the browser check stub is kept)
+LyricPanel/_tmp/*
+!LyricPanel/_tmp/check.html
+
+# Benchmark outputs (contain lyric text and linked vocals)
+Pipeline Tests/out/
+Pipeline Tests/compare.json
+
+# Local-only
+.claude/settings.local.json
+.claude/launch.json
+__pycache__/
+*.pyc

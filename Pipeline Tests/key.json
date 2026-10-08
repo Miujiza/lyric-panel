@@ -1,0 +1,3250 @@
+[
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 0,
+"widx": 0,
+"truth": 8.383,
+"orig": 8.383,
+"pause": null
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 1,
+"widx": 14,
+"truth": 16.516,
+"orig": 16.141,
+"pause": -0.10000000000000142
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 2,
+"widx": 33,
+"truth": 25.4,
+"orig": 25.4,
+"pause": 0.04999999999999716
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 3,
+"widx": 48,
+"truth": 30.781,
+"orig": 30.781,
+"pause": 0.05000000000000071
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 4,
+"widx": 62,
+"truth": 36.62,
+"orig": 36.62,
+"pause": 0.01999999999999602
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 5,
+"widx": 73,
+"truth": 47.339,
+"orig": 49.675,
+"pause": 0.0
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 6,
+"widx": 74,
+"truth": 63.272,
+"orig": 61.853,
+"pause": 9.86
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 7,
+"widx": 85,
+"truth": 71.905,
+"orig": 69.403,
+"pause": 0.23999999999999488
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 8,
+"widx": 98,
+"truth": 80.497,
+"orig": 80.497,
+"pause": 1.259999999999991
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 9,
+"widx": 107,
+"truth": 87.17,
+"orig": 85.836,
+"pause": 0.14000000000000057
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 10,
+"widx": 114,
+"truth": 94.386,
+"orig": 94.386,
+"pause": 3.280000000000001
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 11,
+"widx": 129,
+"truth": 102.477,
+"orig": 100.934,
+"pause": 0.44000000000001194
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 12,
+"widx": 145,
+"truth": 109.067,
+"orig": 108.734,
+"pause": 0.04999999999999716
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 13,
+"widx": 159,
+"truth": 115.699,
+"orig": 115.699,
+"pause": 0.7399999999999949
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 14,
+"widx": 171,
+"truth": 120.495,
+"orig": 120.495,
+"pause": 0.04999999999999716
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 15,
+"widx": 176,
+"truth": 126.877,
+"orig": 126.001,
+"pause": 3.0799999999999983
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 16,
+"widx": 182,
+"truth": 153.32,
+"orig": 153.32,
+"pause": 23.130000000000024
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 17,
+"widx": 193,
+"truth": 161.328,
+"orig": 161.328,
+"pause": 2.180000000000007
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 18,
+"widx": 206,
+"truth": 170.087,
+"orig": 170.087,
+"pause": 0.04999999999998295
+},
+{
+"song": "2WEI & Edda Hayes - Burn",
+"cue": 19,
+"widx": 211,
+"truth": 187.521,
+"orig": 177.886,
+"pause": 5.619999999999976
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 0,
+"widx": 0,
+"truth": 19.061,
+"orig": 19.061,
+"pause": null
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 1,
+"widx": 9,
+"truth": 25.108,
+"orig": 25.108,
+"pause": 0.7399999999999984
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 2,
+"widx": 21,
+"truth": 32.157,
+"orig": 32.157,
+"pause": 0.04999999999999716
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 3,
+"widx": 31,
+"truth": 40.457,
+"orig": 40.457,
+"pause": 1.2600000000000051
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 4,
+"widx": 44,
+"truth": 48.882,
+"orig": 48.882,
+"pause": -0.9200000000000017
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 5,
+"widx": 56,
+"truth": 56.515,
+"orig": 56.515,
+"pause": 0.0
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 6,
+"widx": 68,
+"truth": 63.981,
+"orig": 64.064,
+"pause": 0.3399999999999963
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 7,
+"widx": 83,
+"truth": 75.993,
+"orig": 75.993,
+"pause": 0.04999999999999716
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 8,
+"widx": 89,
+"truth": 82.499,
+"orig": 82.499,
+"pause": 2.339999999999989
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 9,
+"widx": 100,
+"truth": 90.382,
+"orig": 90.382,
+"pause": 0.519999999999996
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 10,
+"widx": 113,
+"truth": 99.099,
+"orig": 99.099,
+"pause": 0.1599999999999966
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 11,
+"widx": 125,
+"truth": 106.857,
+"orig": 106.857,
+"pause": 0.7999999999999972
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 12,
+"widx": 137,
+"truth": 114.364,
+"orig": 114.364,
+"pause": 0.5999999999999943
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 13,
+"widx": 152,
+"truth": 126.376,
+"orig": 126.376,
+"pause": 0.4000000000000057
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 14,
+"widx": 158,
+"truth": 132.257,
+"orig": 132.257,
+"pause": 1.6599999999999966
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 15,
+"widx": 170,
+"truth": 140.057,
+"orig": 140.057,
+"pause": 2.3200000000000216
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 16,
+"widx": 178,
+"truth": 147.439,
+"orig": 147.439,
+"pause": 1.6799999999999784
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 17,
+"widx": 190,
+"truth": 155.53,
+"orig": 155.53,
+"pause": 1.9800000000000182
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 18,
+"widx": 204,
+"truth": 164.956,
+"orig": 164.956,
+"pause": 0.0
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 19,
+"widx": 210,
+"truth": 168.627,
+"orig": 171.088,
+"pause": 2.9399999999999977
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 20,
+"widx": 222,
+"truth": 176.259,
+"orig": 178.804,
+"pause": 0.03999999999999204
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 21,
+"widx": 237,
+"truth": 188.23,
+"orig": 188.23,
+"pause": 0.05000000000001137
+},
+{
+"song": "Cults - Gilded Lily",
+"cue": 22,
+"widx": 251,
+"truth": 199.741,
+"orig": 198.99,
+"pause": 0.05000000000001137
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 0,
+"widx": 0,
+"truth": 8.258,
+"orig": 8.258,
+"pause": null
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 1,
+"widx": 11,
+"truth": 15.39,
+"orig": 15.39,
+"pause": 0.0
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 2,
+"widx": 23,
+"truth": 23.232,
+"orig": 23.232,
+"pause": 0.5
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 3,
+"widx": 39,
+"truth": 30.864,
+"orig": 30.864,
+"pause": 0.5
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 4,
+"widx": 53,
+"truth": 50.342,
+"orig": 49.841,
+"pause": 11.920000000000002
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 5,
+"widx": 64,
+"truth": 57.641,
+"orig": 57.641,
+"pause": 0.03999999999999915
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 6,
+"widx": 76,
+"truth": 76.868,
+"orig": 68.36,
+"pause": 3.4000000000000057
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 7,
+"widx": 86,
+"truth": 80.247,
+"orig": 69.069,
+"pause": 0.0
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 8,
+"widx": 98,
+"truth": 84.418,
+"orig": 73.949,
+"pause": 3.480000000000004
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 9,
+"widx": 104,
+"truth": 86.336,
+"orig": 76.702,
+"pause": 2.5799999999999983
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 10,
+"widx": 116,
+"truth": 90.382,
+"orig": 78.954,
+"pause": 0.0
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 11,
+"widx": 120,
+"truth": 107.482,
+"orig": 107.482,
+"pause": 27.72999999999999
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 12,
+"widx": 136,
+"truth": 115.157,
+"orig": 115.157,
+"pause": 0.05000000000001137
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 13,
+"widx": 150,
+"truth": 134.718,
+"orig": 133.967,
+"pause": 11.749999999999986
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 14,
+"widx": 161,
+"truth": 141.85,
+"orig": 141.85,
+"pause": 0.04999999999998295
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 15,
+"widx": 173,
+"truth": 149.9,
+"orig": 149.9,
+"pause": 0.05000000000001137
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 16,
+"widx": 184,
+"truth": 157.115,
+"orig": 156.406,
+"pause": -0.9000000000000057
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 17,
+"widx": 196,
+"truth": 165.457,
+"orig": 165.457,
+"pause": 0.04999999999998295
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 18,
+"widx": 207,
+"truth": 172.547,
+"orig": 172.547,
+"pause": 0.0
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 19,
+"widx": 219,
+"truth": 180.681,
+"orig": 180.68,
+"pause": 0.04999999999998295
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 20,
+"widx": 230,
+"truth": 187.896,
+"orig": 186.686,
+"pause": -0.8600000000000136
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 21,
+"widx": 242,
+"truth": 195.987,
+"orig": 196.405,
+"pause": 0.05000000000001137
+},
+{
+"song": "Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered)",
+"cue": 22,
+"widx": 253,
+"truth": 203.161,
+"orig": 203.161,
+"pause": 0.05000000000001137
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 0,
+"widx": 0,
+"truth": 9.927,
+"orig": 9.927,
+"pause": null
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 1,
+"widx": 13,
+"truth": 16.558,
+"orig": 16.558,
+"pause": 0.7800000000000011
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 2,
+"widx": 23,
+"truth": 22.105,
+"orig": 22.105,
+"pause": 0.4299999999999997
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 3,
+"widx": 33,
+"truth": 27.736,
+"orig": 27.736,
+"pause": 0.26000000000000156
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 4,
+"widx": 39,
+"truth": 31.615,
+"orig": 31.615,
+"pause": 0.5
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 5,
+"widx": 51,
+"truth": 39.206,
+"orig": 39.206,
+"pause": 0.1599999999999966
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 6,
+"widx": 55,
+"truth": 44.294,
+"orig": 44.294,
+"pause": 3.229999999999997
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 7,
+"widx": 69,
+"truth": 51.301,
+"orig": 51.301,
+"pause": 0.9799999999999969
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 8,
+"widx": 84,
+"truth": 56.974,
+"orig": 56.974,
+"pause": 0.3200000000000003
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 9,
+"widx": 94,
+"truth": 62.688,
+"orig": 62.688,
+"pause": 0.5999999999999943
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 10,
+"widx": 100,
+"truth": 66.441,
+"orig": 66.441,
+"pause": 0.44000000000001194
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 11,
+"widx": 103,
+"truth": 69.903,
+"orig": 69.903,
+"pause": 2.219999999999999
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 12,
+"widx": 116,
+"truth": 78.078,
+"orig": 78.078,
+"pause": 2.6399999999999864
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 13,
+"widx": 125,
+"truth": 86.003,
+"orig": 86.003,
+"pause": 0.4399999999999977
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 14,
+"widx": 135,
+"truth": 92.718,
+"orig": 92.718,
+"pause": 1.25
+},
+{
+"song": "Isabel LaRosa - I'm yours (sped up)",
+"cue": 16,
+"widx": 144,
+"truth": 115.157,
+"orig": 113.864,
+"pause": 13.699999999999989
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 0,
+"widx": 0,
+"truth": 0.792,
+"orig": 0.792,
+"pause": null
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 1,
+"widx": 12,
+"truth": 6.757,
+"orig": 6.757,
+"pause": 0.04999999999999982
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 2,
+"widx": 26,
+"truth": 12.763,
+"orig": 12.763,
+"pause": 0.16000000000000014
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 3,
+"widx": 38,
+"truth": 16.558,
+"orig": 16.558,
+"pause": 0.22000000000000242
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 4,
+"widx": 53,
+"truth": 23.023,
+"orig": 23.023,
+"pause": 0.9200000000000017
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 5,
+"widx": 70,
+"truth": 28.946,
+"orig": 28.946,
+"pause": 0.05000000000000071
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 6,
+"widx": 79,
+"truth": 32.157,
+"orig": 32.157,
+"pause": 0.3399999999999963
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 7,
+"widx": 89,
+"truth": 34.952,
+"orig": 34.952,
+"pause": 0.5200000000000031
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 8,
+"widx": 98,
+"truth": 37.829,
+"orig": 37.829,
+"pause": 0.240000000000002
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 9,
+"widx": 108,
+"truth": 40.916,
+"orig": 40.916,
+"pause": 0.1599999999999966
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 10,
+"widx": 119,
+"truth": 45.379,
+"orig": 45.546,
+"pause": 1.279999999999994
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 11,
+"widx": 132,
+"truth": 51.677,
+"orig": 51.677,
+"pause": 2.0
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 12,
+"widx": 145,
+"truth": 57.224,
+"orig": 57.224,
+"pause": -0.020000000000003126
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 13,
+"widx": 159,
+"truth": 63.939,
+"orig": 63.939,
+"pause": 0.4200000000000088
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 14,
+"widx": 171,
+"truth": 66.984,
+"orig": 66.984,
+"pause": 0.14000000000000057
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 15,
+"widx": 186,
+"truth": 73.907,
+"orig": 73.907,
+"pause": 0.8700000000000045
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 16,
+"widx": 202,
+"truth": 79.454,
+"orig": 79.788,
+"pause": 0.5900000000000034
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 17,
+"widx": 214,
+"truth": 82.791,
+"orig": 83.041,
+"pause": 0.519999999999996
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 18,
+"widx": 222,
+"truth": 86.169,
+"orig": 86.169,
+"pause": 0.46000000000000796
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 19,
+"widx": 232,
+"truth": 89.423,
+"orig": 89.423,
+"pause": 0.5600000000000023
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 20,
+"widx": 240,
+"truth": 91.717,
+"orig": 91.717,
+"pause": -0.10000000000000853
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 21,
+"widx": 251,
+"truth": 96.43,
+"orig": 96.43,
+"pause": 1.0600000000000023
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 22,
+"widx": 264,
+"truth": 102.519,
+"orig": 102.519,
+"pause": 1.8400000000000034
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 23,
+"widx": 277,
+"truth": 108.608,
+"orig": 108.608,
+"pause": 0.04999999999999716
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 24,
+"widx": 291,
+"truth": 114.823,
+"orig": 114.823,
+"pause": 0.5400000000000063
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 25,
+"widx": 303,
+"truth": 118.243,
+"orig": 118.243,
+"pause": 0.29999999999999716
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 26,
+"widx": 318,
+"truth": 124.708,
+"orig": 124.708,
+"pause": 0.8599999999999994
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 27,
+"widx": 328,
+"truth": 131.006,
+"orig": 131.131,
+"pause": 1.8000000000000114
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 28,
+"widx": 337,
+"truth": 137.512,
+"orig": 137.512,
+"pause": 1.6699999999999875
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 29,
+"widx": 344,
+"truth": 140.307,
+"orig": 140.307,
+"pause": 0.5600000000000023
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 30,
+"widx": 356,
+"truth": 143.56,
+"orig": 143.56,
+"pause": 0.13999999999998636
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 31,
+"widx": 371,
+"truth": 150.067,
+"orig": 150.067,
+"pause": 0.7800000000000011
+},
+{
+"song": "Jessie Murph - About You",
+"cue": 32,
+"widx": 379,
+"truth": 156.615,
+"orig": 156.615,
+"pause": 4.109999999999985
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 0,
+"widx": 0,
+"truth": 14.514,
+"orig": 14.514,
+"pause": null
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 1,
+"widx": 12,
+"truth": 19.519,
+"orig": 19.519,
+"pause": 0.05000000000000071
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 2,
+"widx": 27,
+"truth": 24.566,
+"orig": 24.566,
+"pause": 0.05000000000000071
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 3,
+"widx": 43,
+"truth": 29.947,
+"orig": 29.947,
+"pause": 0.05000000000000071
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 4,
+"widx": 53,
+"truth": 32.699,
+"orig": 32.699,
+"pause": 0.09999999999999432
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 5,
+"widx": 65,
+"truth": 36.495,
+"orig": 36.495,
+"pause": 0.04999999999999716
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 6,
+"widx": 75,
+"truth": 42.0,
+"orig": 42.0,
+"pause": 1.3200000000000003
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 7,
+"widx": 83,
+"truth": 43.919,
+"orig": 43.919,
+"pause": -0.20000000000000284
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 8,
+"widx": 89,
+"truth": 48.257,
+"orig": 48.257,
+"pause": 2.3400000000000034
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 9,
+"widx": 98,
+"truth": 53.47,
+"orig": 53.47,
+"pause": 2.1200000000000045
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 10,
+"widx": 106,
+"truth": 58.433,
+"orig": 58.433,
+"pause": 2.0400000000000063
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 11,
+"widx": 115,
+"truth": 63.689,
+"orig": 63.689,
+"pause": 1.4799999999999969
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 12,
+"widx": 126,
+"truth": 70.487,
+"orig": 70.487,
+"pause": 1.559999999999988
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 13,
+"widx": 134,
+"truth": 73.198,
+"orig": 73.198,
+"pause": 0.7999999999999972
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 14,
+"widx": 142,
+"truth": 75.784,
+"orig": 75.2,
+"pause": 0.3500000000000085
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 15,
+"widx": 153,
+"truth": 80.914,
+"orig": 80.914,
+"pause": 0.9200000000000017
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 16,
+"widx": 167,
+"truth": 85.961,
+"orig": 85.961,
+"pause": 0.980000000000004
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 17,
+"widx": 183,
+"truth": 91.383,
+"orig": 91.383,
+"pause": 0.9000000000000057
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 18,
+"widx": 193,
+"truth": 93.885,
+"orig": 93.885,
+"pause": 0.0799999999999983
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 19,
+"widx": 205,
+"truth": 98.056,
+"orig": 98.056,
+"pause": 0.04999999999999716
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 20,
+"widx": 215,
+"truth": 102.853,
+"orig": 102.853,
+"pause": 0.04999999999999716
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 21,
+"widx": 223,
+"truth": 105.188,
+"orig": 105.188,
+"pause": -0.18000000000000682
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 22,
+"widx": 229,
+"truth": 109.318,
+"orig": 109.318,
+"pause": 2.019999999999996
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 23,
+"widx": 247,
+"truth": 119.828,
+"orig": 119.828,
+"pause": 2.180000000000007
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 24,
+"widx": 263,
+"truth": 129.004,
+"orig": 129.004,
+"pause": 0.05000000000001137
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 25,
+"widx": 274,
+"truth": 134.468,
+"orig": 134.468,
+"pause": 0.04999999999998295
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 26,
+"widx": 282,
+"truth": 139.473,
+"orig": 139.473,
+"pause": 2.1599999999999966
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 27,
+"widx": 292,
+"truth": 144.102,
+"orig": 144.102,
+"pause": 0.3400000000000034
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 28,
+"widx": 296,
+"truth": 144.895,
+"orig": 144.895,
+"pause": -0.28000000000000114
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 29,
+"widx": 305,
+"truth": 149.65,
+"orig": 149.65,
+"pause": 0.05000000000001137
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 30,
+"widx": 315,
+"truth": 153.904,
+"orig": 152.652,
+"pause": -1.299999999999983
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 31,
+"widx": 320,
+"truth": 155.53,
+"orig": 155.53,
+"pause": 0.14000000000001478
+},
+{
+"song": "Jessie Murph - Drunk in the Bathtub",
+"cue": 32,
+"widx": 333,
+"truth": 160.035,
+"orig": 160.035,
+"pause": 2.039999999999992
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 0,
+"widx": 0,
+"truth": 8.342,
+"orig": 8.675,
+"pause": null
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 1,
+"widx": 9,
+"truth": 13.18,
+"orig": 13.472,
+"pause": 0.5200000000000014
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 2,
+"widx": 20,
+"truth": 17.392,
+"orig": 17.392,
+"pause": 0.26000000000000156
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 3,
+"widx": 30,
+"truth": 24.983,
+"orig": 25.442,
+"pause": 0.759999999999998
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 4,
+"widx": 37,
+"truth": 28.32,
+"orig": 28.32,
+"pause": 0.3999999999999986
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 5,
+"widx": 46,
+"truth": 32.533,
+"orig": 32.532,
+"pause": 0.480000000000004
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 6,
+"widx": 58,
+"truth": 38.163,
+"orig": 38.163,
+"pause": 0.3200000000000003
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 7,
+"widx": 70,
+"truth": 44.461,
+"orig": 44.461,
+"pause": 1.6400000000000006
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 8,
+"widx": 81,
+"truth": 52.636,
+"orig": 52.636,
+"pause": 1.3399999999999963
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 9,
+"widx": 92,
+"truth": 56.431,
+"orig": 56.765,
+"pause": 0.259999999999998
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 10,
+"widx": 104,
+"truth": 65.19,
+"orig": 65.19,
+"pause": 1.1599999999999966
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 11,
+"widx": 110,
+"truth": 69.611,
+"orig": 68.652,
+"pause": 0.8400000000000034
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 12,
+"widx": 121,
+"truth": 76.41,
+"orig": 76.41,
+"pause": 2.5900000000000034
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 13,
+"widx": 130,
+"truth": 81.456,
+"orig": 81.456,
+"pause": 0.480000000000004
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 14,
+"widx": 141,
+"truth": 85.168,
+"orig": 85.168,
+"pause": 0.12000000000000455
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 15,
+"widx": 155,
+"truth": 89.339,
+"orig": 89.339,
+"pause": 0.03999999999999204
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 16,
+"widx": 168,
+"truth": 95.512,
+"orig": 95.512,
+"pause": 1.9699999999999989
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 17,
+"widx": 179,
+"truth": 103.228,
+"orig": 103.228,
+"pause": 0.8999999999999915
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 18,
+"widx": 190,
+"truth": 107.691,
+"orig": 107.691,
+"pause": 0.23999999999999488
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 19,
+"widx": 197,
+"truth": 112.279,
+"orig": 112.279,
+"pause": 1.7000000000000028
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 20,
+"widx": 207,
+"truth": 116.658,
+"orig": 116.366,
+"pause": 0.04000000000000625
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 21,
+"widx": 224,
+"truth": 126.501,
+"orig": 126.501,
+"pause": 1.4200000000000017
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 22,
+"widx": 232,
+"truth": 133.133,
+"orig": 133.133,
+"pause": 1.9799999999999898
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 23,
+"widx": 239,
+"truth": 139.306,
+"orig": 139.306,
+"pause": 0.12000000000000455
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 24,
+"widx": 245,
+"truth": 146.271,
+"orig": 146.271,
+"pause": 1.460000000000008
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 25,
+"widx": 260,
+"truth": 154.654,
+"orig": 154.654,
+"pause": 0.28000000000000114
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 26,
+"widx": 271,
+"truth": 158.742,
+"orig": 158.742,
+"pause": 0.3199999999999932
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 27,
+"widx": 283,
+"truth": 166.917,
+"orig": 166.917,
+"pause": 0.960000000000008
+},
+{
+"song": "Joy Crookes - Feet Don't Fail Me Now",
+"cue": 28,
+"widx": 297,
+"truth": 193.944,
+"orig": 194.236,
+"pause": 18.5
+},
+{
+"song": "Kodaline - The One",
+"cue": 0,
+"widx": 0,
+"truth": 11.72,
+"orig": 11.97,
+"pause": null
+},
+{
+"song": "Kodaline - The One",
+"cue": 1,
+"widx": 8,
+"truth": 16.35,
+"orig": 16.35,
+"pause": 0.17999999999999972
+},
+{
+"song": "Kodaline - The One",
+"cue": 2,
+"widx": 18,
+"truth": 24.358,
+"orig": 24.358,
+"pause": 2.460000000000001
+},
+{
+"song": "Kodaline - The One",
+"cue": 3,
+"widx": 24,
+"truth": 28.779,
+"orig": 28.779,
+"pause": 0.759999999999998
+},
+{
+"song": "Kodaline - The One",
+"cue": 4,
+"widx": 36,
+"truth": 36.245,
+"orig": 36.245,
+"pause": 2.4399999999999977
+},
+{
+"song": "Kodaline - The One",
+"cue": 5,
+"widx": 56,
+"truth": 48.757,
+"orig": 48.757,
+"pause": 2.8400000000000034
+},
+{
+"song": "Kodaline - The One",
+"cue": 6,
+"widx": 72,
+"truth": 61.603,
+"orig": 61.603,
+"pause": 3.280000000000001
+},
+{
+"song": "Kodaline - The One",
+"cue": 7,
+"widx": 80,
+"truth": 68.068,
+"orig": 68.068,
+"pause": 3.1799999999999926
+},
+{
+"song": "Kodaline - The One",
+"cue": 8,
+"widx": 86,
+"truth": 73.615,
+"orig": 73.615,
+"pause": 2.309999999999988
+},
+{
+"song": "Kodaline - The One",
+"cue": 9,
+"widx": 97,
+"truth": 80.747,
+"orig": 80.747,
+"pause": 0.8599999999999994
+},
+{
+"song": "Kodaline - The One",
+"cue": 10,
+"widx": 105,
+"truth": 86.211,
+"orig": 86.211,
+"pause": 3.3599999999999994
+},
+{
+"song": "Kodaline - The One",
+"cue": 11,
+"widx": 120,
+"truth": 105.731,
+"orig": 105.731,
+"pause": 0.7999999999999972
+},
+{
+"song": "Kodaline - The One",
+"cue": 12,
+"widx": 131,
+"truth": 113.447,
+"orig": 113.447,
+"pause": 2.4200000000000017
+},
+{
+"song": "Kodaline - The One",
+"cue": 13,
+"widx": 146,
+"truth": 126.209,
+"orig": 126.209,
+"pause": 3.299999999999997
+},
+{
+"song": "Kodaline - The One",
+"cue": 14,
+"widx": 160,
+"truth": 137.971,
+"orig": 137.971,
+"pause": 1.9399999999999977
+},
+{
+"song": "Kodaline - The One",
+"cue": 15,
+"widx": 171,
+"truth": 145.354,
+"orig": 145.354,
+"pause": 0.8599999999999852
+},
+{
+"song": "Kodaline - The One",
+"cue": 16,
+"widx": 179,
+"truth": 150.651,
+"orig": 150.65,
+"pause": 2.839999999999975
+},
+{
+"song": "Kodaline - The One",
+"cue": 17,
+"widx": 187,
+"truth": 156.365,
+"orig": 156.365,
+"pause": 1.960000000000008
+},
+{
+"song": "Kodaline - The One",
+"cue": 18,
+"widx": 200,
+"truth": 160.911,
+"orig": 160.911,
+"pause": 0.28000000000000114
+},
+{
+"song": "Kodaline - The One",
+"cue": 19,
+"widx": 209,
+"truth": 168.585,
+"orig": 168.585,
+"pause": 2.539999999999992
+},
+{
+"song": "Kodaline - The One",
+"cue": 20,
+"widx": 221,
+"truth": 173.09,
+"orig": 173.09,
+"pause": 0.1599999999999966
+},
+{
+"song": "Kodaline - The One",
+"cue": 21,
+"widx": 226,
+"truth": 180.472,
+"orig": 180.639,
+"pause": 5.259999999999991
+},
+{
+"song": "Kodaline - The One",
+"cue": 22,
+"widx": 237,
+"truth": 191.024,
+"orig": 189.106,
+"pause": 1.240000000000009
+},
+{
+"song": "Kodaline - The One",
+"cue": 23,
+"widx": 243,
+"truth": 196.738,
+"orig": 196.738,
+"pause": 2.119999999999976
+},
+{
+"song": "Kodaline - The One",
+"cue": 24,
+"widx": 254,
+"truth": 203.829,
+"orig": 203.829,
+"pause": 0.8600000000000136
+},
+{
+"song": "Kodaline - The One",
+"cue": 25,
+"widx": 262,
+"truth": 209.418,
+"orig": 209.418,
+"pause": 3.200000000000017
+},
+{
+"song": "Kodaline - The One",
+"cue": 26,
+"widx": 270,
+"truth": 215.59,
+"orig": 215.59,
+"pause": 2.7399999999999807
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 0,
+"widx": 0,
+"truth": 11.428,
+"orig": 11.595,
+"pause": null
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 1,
+"widx": 9,
+"truth": 17.059,
+"orig": 17.059,
+"pause": 0.8399999999999999
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 2,
+"widx": 18,
+"truth": 22.731,
+"orig": 22.731,
+"pause": 0.879999999999999
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 3,
+"widx": 33,
+"truth": 35.953,
+"orig": 34.701,
+"pause": 2.010000000000005
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 4,
+"widx": 48,
+"truth": 46.797,
+"orig": 46.797,
+"pause": 0.7000000000000028
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 5,
+"widx": 58,
+"truth": 52.302,
+"orig": 52.302,
+"pause": 1.0
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 6,
+"widx": 65,
+"truth": 62.813,
+"orig": 63.188,
+"pause": 6.460000000000001
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 7,
+"widx": 72,
+"truth": 68.527,
+"orig": 68.819,
+"pause": 0.7999999999999972
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 8,
+"widx": 85,
+"truth": 79.83,
+"orig": 79.83,
+"pause": 0.8599999999999994
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 9,
+"widx": 93,
+"truth": 87.587,
+"orig": 87.587,
+"pause": 2.799999999999997
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 10,
+"widx": 108,
+"truth": 98.39,
+"orig": 98.39,
+"pause": 1.3799999999999955
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 11,
+"widx": 118,
+"truth": 103.895,
+"orig": 103.895,
+"pause": 1.019999999999996
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 12,
+"widx": 124,
+"truth": 109.401,
+"orig": 109.401,
+"pause": 1.6400000000000006
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 13,
+"widx": 133,
+"truth": 119.453,
+"orig": 119.453,
+"pause": 0.480000000000004
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 14,
+"widx": 139,
+"truth": 122.331,
+"orig": 122.789,
+"pause": 0.0
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 15,
+"widx": 144,
+"truth": 133.592,
+"orig": 133.592,
+"pause": 7.5600000000000165
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 16,
+"widx": 160,
+"truth": 144.77,
+"orig": 144.77,
+"pause": 1.7600000000000193
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 17,
+"widx": 170,
+"truth": 149.941,
+"orig": 149.941,
+"pause": 1.0200000000000102
+},
+{
+"song": "MEG MYERS - ME",
+"cue": 18,
+"widx": 177,
+"truth": 155.447,
+"orig": 155.447,
+"pause": 0.7199999999999989
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 0,
+"widx": 0,
+"truth": 5.214,
+"orig": 5.214,
+"pause": null
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 1,
+"widx": 8,
+"truth": 8.425,
+"orig": 8.425,
+"pause": 0.0600000000000005
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 2,
+"widx": 19,
+"truth": 11.803,
+"orig": 11.803,
+"pause": 0.3199999999999985
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 3,
+"widx": 28,
+"truth": 14.681000000000001,
+"orig": 14.681000000000001,
+"pause": 0.7199999999999989
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 4,
+"widx": 38,
+"truth": 19.269,
+"orig": 19.269,
+"pause": 1.4199999999999982
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 5,
+"widx": 50,
+"truth": 25.609,
+"orig": 25.609,
+"pause": 0.6600000000000001
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 6,
+"widx": 63,
+"truth": 31.865,
+"orig": 31.865,
+"pause": 0.05000000000000426
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 7,
+"widx": 77,
+"truth": 37.704,
+"orig": 37.704,
+"pause": -0.21999999999999886
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 8,
+"widx": 92,
+"truth": 44.545,
+"orig": 44.544,
+"pause": 0.27999999999999403
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 9,
+"widx": 101,
+"truth": 47.047,
+"orig": 47.047,
+"pause": 0.0799999999999983
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 10,
+"widx": 111,
+"truth": 50.884,
+"orig": 50.884,
+"pause": 0.240000000000002
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 11,
+"widx": 123,
+"truth": 62.145,
+"orig": 60.352,
+"pause": 3.9200000000000017
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 12,
+"widx": 135,
+"truth": 68.235,
+"orig": 67.651,
+"pause": -0.28000000000000114
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 13,
+"widx": 154,
+"truth": 75.993,
+"orig": 75.993,
+"pause": 0.04999999999999716
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 14,
+"widx": 168,
+"truth": 81.957,
+"orig": 81.957,
+"pause": -0.0799999999999983
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 15,
+"widx": 183,
+"truth": 88.297,
+"orig": 88.297,
+"pause": -0.10999999999999943
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 16,
+"widx": 192,
+"truth": 91.3,
+"orig": 91.3,
+"pause": 0.060000000000002274
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 17,
+"widx": 202,
+"truth": 95.095,
+"orig": 95.095,
+"pause": 0.29999999999999716
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 18,
+"widx": 214,
+"truth": 101.601,
+"orig": 101.601,
+"pause": 0.04999999999999716
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 19,
+"widx": 226,
+"truth": 114.239,
+"orig": 114.239,
+"pause": 0.04999999999999716
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 20,
+"widx": 238,
+"truth": 126.543,
+"orig": 126.543,
+"pause": 0.04999999999999716
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 21,
+"widx": 252,
+"truth": 132.507,
+"orig": 132.507,
+"pause": -0.13999999999998636
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 22,
+"widx": 267,
+"truth": 139.264,
+"orig": 139.264,
+"pause": 0.2400000000000091
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 23,
+"widx": 276,
+"truth": 141.808,
+"orig": 141.808,
+"pause": 0.5
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 24,
+"widx": 286,
+"truth": 145.604,
+"orig": 145.604,
+"pause": 0.3200000000000216
+},
+{
+"song": "Maggie Lindemann - you're not special",
+"cue": 25,
+"widx": 298,
+"truth": 152.235,
+"orig": 152.235,
+"pause": 0.05000000000001137
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 1,
+"widx": 8,
+"truth": 14.389,
+"orig": 14.389,
+"pause": 0.3800000000000008
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 2,
+"widx": 17,
+"truth": 19.186,
+"orig": 19.186,
+"pause": 0.05000000000000071
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 3,
+"widx": 32,
+"truth": 25.651,
+"orig": 25.651,
+"pause": 0.11999999999999744
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 4,
+"widx": 48,
+"truth": 33.158,
+"orig": 33.158,
+"pause": 0.04999999999999716
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 5,
+"widx": 65,
+"truth": 43.835,
+"orig": 43.835,
+"pause": 0.05000000000000426
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 6,
+"widx": 75,
+"truth": 54.972,
+"orig": 54.972,
+"pause": 1.2800000000000011
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 7,
+"widx": 87,
+"truth": 65.816,
+"orig": 65.232,
+"pause": 0.04999999999999716
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 8,
+"widx": 90,
+"truth": 70.904,
+"orig": 70.904,
+"pause": 3.190000000000012
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 9,
+"widx": 102,
+"truth": 76.368,
+"orig": 76.368,
+"pause": 0.45999999999999375
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 10,
+"widx": 115,
+"truth": 81.456,
+"orig": 81.456,
+"pause": 0.04999999999999716
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 11,
+"widx": 121,
+"truth": 86.712,
+"orig": 86.712,
+"pause": 0.04999999999999716
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 12,
+"widx": 133,
+"truth": 92.968,
+"orig": 92.426,
+"pause": -0.1599999999999966
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 13,
+"widx": 142,
+"truth": 98.473,
+"orig": 98.473,
+"pause": 2.0999999999999943
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 14,
+"widx": 150,
+"truth": 103.687,
+"orig": 103.687,
+"pause": 0.04999999999999716
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 15,
+"widx": 160,
+"truth": 114.239,
+"orig": 114.239,
+"pause": 1.3599999999999994
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 16,
+"widx": 172,
+"truth": 124.833,
+"orig": 124.833,
+"pause": 0.04999999999999716
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 17,
+"widx": 175,
+"truth": 149.608,
+"orig": 149.608,
+"pause": 22.62000000000002
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 18,
+"widx": 193,
+"truth": 155.405,
+"orig": 155.405,
+"pause": 0.03999999999999204
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 19,
+"widx": 205,
+"truth": 160.869,
+"orig": 160.869,
+"pause": 0.12000000000000455
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 20,
+"widx": 221,
+"truth": 166.5,
+"orig": 166.5,
+"pause": 0.05000000000001137
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 21,
+"widx": 230,
+"truth": 176.885,
+"orig": 176.885,
+"pause": 0.05000000000001137
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 22,
+"widx": 240,
+"truth": 188.438,
+"orig": 188.438,
+"pause": 0.04999999999998295
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 23,
+"widx": 251,
+"truth": 198.156,
+"orig": 198.156,
+"pause": 0.6199999999999761
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 24,
+"widx": 254,
+"truth": 210.085,
+"orig": 210.085,
+"pause": 0.0
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 25,
+"widx": 257,
+"truth": 222.264,
+"orig": 222.264,
+"pause": 10.300000000000011
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 26,
+"widx": 267,
+"truth": 232.858,
+"orig": 232.858,
+"pause": 1.2199999999999989
+},
+{
+"song": "Rihanna - California King Bed",
+"cue": 27,
+"widx": 279,
+"truth": 243.41,
+"orig": 243.41,
+"pause": 0.05000000000001137
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 0,
+"widx": 0,
+"truth": 14.681000000000001,
+"orig": 14.681000000000001,
+"pause": null
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 1,
+"widx": 7,
+"truth": 18.268,
+"orig": 18.268,
+"pause": 0.620000000000001
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 2,
+"widx": 15,
+"truth": 22.105,
+"orig": 22.105,
+"pause": 0.7199999999999989
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 3,
+"widx": 27,
+"truth": 29.238,
+"orig": 27.903,
+"pause": 0.6400000000000006
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 4,
+"widx": 35,
+"truth": 31.281,
+"orig": 31.281,
+"pause": 0.259999999999998
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 5,
+"widx": 43,
+"truth": 33.116,
+"orig": 33.116,
+"pause": 0.259999999999998
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 6,
+"widx": 58,
+"truth": 37.496,
+"orig": 37.496,
+"pause": 0.8799999999999955
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 7,
+"widx": 64,
+"truth": 42.334,
+"orig": 42.334,
+"pause": 0.10000000000000142
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 8,
+"widx": 77,
+"truth": 51.26,
+"orig": 51.26,
+"pause": 1.0400000000000063
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 9,
+"widx": 81,
+"truth": 59.017,
+"orig": 59.017,
+"pause": 3.3000000000000043
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 10,
+"widx": 94,
+"truth": 66.4,
+"orig": 66.4,
+"pause": 0.5799999999999983
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 11,
+"widx": 106,
+"truth": 73.657,
+"orig": 72.322,
+"pause": 0.7000000000000028
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 12,
+"widx": 114,
+"truth": 75.242,
+"orig": 75.492,
+"pause": 0.1599999999999966
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 13,
+"widx": 122,
+"truth": 77.244,
+"orig": 77.411,
+"pause": 0.3199999999999932
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 14,
+"widx": 137,
+"truth": 81.456,
+"orig": 81.957,
+"pause": 1.0
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 15,
+"widx": 143,
+"truth": 86.67,
+"orig": 86.67,
+"pause": 0.060000000000002274
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 16,
+"widx": 156,
+"truth": 95.345,
+"orig": 95.345,
+"pause": 0.9199999999999875
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 17,
+"widx": 160,
+"truth": 102.811,
+"orig": 102.811,
+"pause": 2.8599999999999994
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 18,
+"widx": 164,
+"truth": 113.905,
+"orig": 113.905,
+"pause": 6.390000000000001
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 19,
+"widx": 172,
+"truth": 121.204,
+"orig": 121.204,
+"pause": 3.9399999999999977
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 20,
+"widx": 181,
+"truth": 125.375,
+"orig": 125.375,
+"pause": 0.5200000000000102
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 21,
+"widx": 197,
+"truth": 129.171,
+"orig": 129.171,
+"pause": 0.29999999999998295
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 22,
+"widx": 213,
+"truth": 133.133,
+"orig": 133.133,
+"pause": 0.5999999999999943
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 23,
+"widx": 221,
+"truth": 134.509,
+"orig": 134.509,
+"pause": 0.14000000000001478
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 24,
+"widx": 229,
+"truth": 136.511,
+"orig": 136.511,
+"pause": 0.28000000000000114
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 25,
+"widx": 244,
+"truth": 142.017,
+"orig": 142.017,
+"pause": 1.9599999999999795
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 26,
+"widx": 250,
+"truth": 147.689,
+"orig": 147.689,
+"pause": 0.0
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 27,
+"widx": 263,
+"truth": 157.032,
+"orig": 157.032,
+"pause": 1.5800000000000125
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 28,
+"widx": 269,
+"truth": 162.371,
+"orig": 162.371,
+"pause": 0.12000000000000455
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 29,
+"widx": 282,
+"truth": 170.962,
+"orig": 172.255,
+"pause": 1.960000000000008
+},
+{
+"song": "Royal Deluxe - I'm Back",
+"cue": 30,
+"widx": 286,
+"truth": 178.512,
+"orig": 178.512,
+"pause": 2.819999999999993
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 0,
+"widx": 0,
+"truth": 13.222,
+"orig": 12.93,
+"pause": null
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 1,
+"widx": 18,
+"truth": 19.186,
+"orig": 19.186,
+"pause": 0.4400000000000013
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 2,
+"widx": 38,
+"truth": 24.858,
+"orig": 24.858,
+"pause": 0.46000000000000085
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 3,
+"widx": 52,
+"truth": 30.572,
+"orig": 30.572,
+"pause": 1.1799999999999997
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 4,
+"widx": 60,
+"truth": 33.242,
+"orig": 33.242,
+"pause": 0.03999999999999915
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 5,
+"widx": 72,
+"truth": 36.495,
+"orig": 36.495,
+"pause": 0.01999999999999602
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 6,
+"widx": 82,
+"truth": 42.251,
+"orig": 42.251,
+"pause": 0.3200000000000003
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 7,
+"widx": 87,
+"truth": 47.13,
+"orig": 47.13,
+"pause": 2.8799999999999955
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 8,
+"widx": 97,
+"truth": 53.22,
+"orig": 53.22,
+"pause": 0.6599999999999966
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 9,
+"widx": 111,
+"truth": 59.059,
+"orig": 59.059,
+"pause": 0.0
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 10,
+"widx": 121,
+"truth": 64.856,
+"orig": 64.856,
+"pause": 0.5799999999999983
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 11,
+"widx": 127,
+"truth": 67.901,
+"orig": 67.901,
+"pause": 0.7399999999999949
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 12,
+"widx": 139,
+"truth": 83.166,
+"orig": 83.5,
+"pause": 0.18000000000000682
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 13,
+"widx": 149,
+"truth": 85.919,
+"orig": 85.919,
+"pause": 0.1599999999999966
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 14,
+"widx": 158,
+"truth": 89.131,
+"orig": 89.131,
+"pause": 0.6200000000000045
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 15,
+"widx": 173,
+"truth": 94.678,
+"orig": 94.678,
+"pause": 0.20000000000000284
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 16,
+"widx": 178,
+"truth": 99.558,
+"orig": 99.558,
+"pause": 3.0
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 17,
+"widx": 188,
+"truth": 105.564,
+"orig": 105.564,
+"pause": 0.6199999999999903
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 18,
+"widx": 202,
+"truth": 111.445,
+"orig": 111.445,
+"pause": 0.01999999999999602
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 19,
+"widx": 212,
+"truth": 117.075,
+"orig": 117.075,
+"pause": 0.3999999999999915
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 20,
+"widx": 218,
+"truth": 120.287,
+"orig": 120.287,
+"pause": 0.7199999999999989
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 21,
+"widx": 230,
+"truth": 140.557,
+"orig": 140.849,
+"pause": 0.0800000000000125
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 22,
+"widx": 239,
+"truth": 143.685,
+"orig": 143.685,
+"pause": 0.12000000000000455
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 23,
+"widx": 248,
+"truth": 146.688,
+"orig": 146.688,
+"pause": 0.18000000000000682
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 24,
+"widx": 256,
+"truth": 149.608,
+"orig": 149.608,
+"pause": 0.12000000000000455
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 25,
+"widx": 265,
+"truth": 152.652,
+"orig": 152.652,
+"pause": 0.37999999999999545
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 26,
+"widx": 270,
+"truth": 164.498,
+"orig": 164.498,
+"pause": 7.77000000000001
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 27,
+"widx": 284,
+"truth": 170.337,
+"orig": 170.337,
+"pause": 1.0600000000000023
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 28,
+"widx": 292,
+"truth": 172.881,
+"orig": 172.881,
+"pause": 0.0
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 29,
+"widx": 304,
+"truth": 176.676,
+"orig": 176.676,
+"pause": 0.7800000000000011
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 30,
+"widx": 314,
+"truth": 182.682,
+"orig": 182.682,
+"pause": 0.47999999999998977
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 31,
+"widx": 328,
+"truth": 188.522,
+"orig": 188.522,
+"pause": 0.03999999999999204
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 32,
+"widx": 338,
+"truth": 194.319,
+"orig": 194.319,
+"pause": 0.8200000000000216
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 33,
+"widx": 344,
+"truth": 197.364,
+"orig": 197.364,
+"pause": 0.7199999999999989
+},
+{
+"song": "Self Deception - Fight Fire With Gasoline",
+"cue": 34,
+"widx": 356,
+"truth": 211.044,
+"orig": 211.044,
+"pause": 0.0
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 0,
+"widx": 0,
+"truth": 9.426,
+"orig": 9.593,
+"pause": null
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 1,
+"widx": 11,
+"truth": 12.554,
+"orig": 12.554,
+"pause": 0.05000000000000071
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 2,
+"widx": 25,
+"truth": 17.518,
+"orig": 16.6,
+"pause": 0.0
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 3,
+"widx": 36,
+"truth": 21.355,
+"orig": 21.355,
+"pause": -0.16000000000000014
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 4,
+"widx": 50,
+"truth": 27.069,
+"orig": 27.069,
+"pause": 0.9200000000000017
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 5,
+"widx": 63,
+"truth": 33.116,
+"orig": 33.116,
+"pause": 1.0200000000000031
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 6,
+"widx": 76,
+"truth": 40.29,
+"orig": 40.29,
+"pause": 1.6600000000000037
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 7,
+"widx": 84,
+"truth": 44.253,
+"orig": 44.253,
+"pause": 0.5200000000000031
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 8,
+"widx": 93,
+"truth": 49.508,
+"orig": 49.508,
+"pause": 0.04999999999999716
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 9,
+"widx": 102,
+"truth": 54.304,
+"orig": 54.304,
+"pause": 1.1299999999999955
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 10,
+"widx": 108,
+"truth": 59.309,
+"orig": 59.309,
+"pause": 0.04999999999999716
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 11,
+"widx": 112,
+"truth": 64.189,
+"orig": 64.189,
+"pause": 0.8999999999999986
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 12,
+"widx": 118,
+"truth": 84.71,
+"orig": 82.833,
+"pause": 17.239999999999995
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 13,
+"widx": 133,
+"truth": 90.424,
+"orig": 90.424,
+"pause": 0.35999999999999943
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 14,
+"widx": 139,
+"truth": 93.927,
+"orig": 93.927,
+"pause": 0.3400000000000034
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 15,
+"widx": 149,
+"truth": 96.93,
+"orig": 96.93,
+"pause": 0.0
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 16,
+"widx": 162,
+"truth": 102.144,
+"orig": 102.06,
+"pause": 0.04999999999999716
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 17,
+"widx": 175,
+"truth": 108.15,
+"orig": 107.607,
+"pause": 0.21999999999999886
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 18,
+"widx": 188,
+"truth": 115.532,
+"orig": 115.532,
+"pause": 0.04999999999999716
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 19,
+"widx": 196,
+"truth": 119.786,
+"orig": 119.786,
+"pause": 0.7599999999999909
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 20,
+"widx": 205,
+"truth": 124.666,
+"orig": 124.666,
+"pause": 0.05000000000001137
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 21,
+"widx": 214,
+"truth": 129.087,
+"orig": 129.087,
+"pause": 0.6400000000000148
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 22,
+"widx": 220,
+"truth": 134.551,
+"orig": 134.551,
+"pause": 0.05000000000001137
+},
+{
+"song": "Sia - Unstoppable (R3HAB Remix)",
+"cue": 23,
+"widx": 224,
+"truth": 138.972,
+"orig": 137.304,
+"pause": -0.5600000000000023
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 0,
+"widx": 0,
+"truth": 13.931000000000001,
+"orig": 12.93,
+"pause": null
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 1,
+"widx": 7,
+"truth": 17.142,
+"orig": 17.351,
+"pause": 0.26000000000000156
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 2,
+"widx": 19,
+"truth": 22.564,
+"orig": 22.564,
+"pause": 0.5199999999999996
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 3,
+"widx": 29,
+"truth": 26.443,
+"orig": 26.443,
+"pause": 0.8399999999999999
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 4,
+"widx": 41,
+"truth": 30.405,
+"orig": 30.697,
+"pause": 0.5199999999999996
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 5,
+"widx": 52,
+"truth": 33.909,
+"orig": 33.909,
+"pause": 0.3999999999999986
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 6,
+"widx": 63,
+"truth": 37.079,
+"orig": 37.204,
+"pause": 0.23999999999999488
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 7,
+"widx": 71,
+"truth": 44.878,
+"orig": 42.292,
+"pause": 0.0
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 8,
+"widx": 76,
+"truth": 49.967,
+"orig": 47.839,
+"pause": 0.5
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 9,
+"widx": 88,
+"truth": 71.113,
+"orig": 64.815,
+"pause": 11.5
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 10,
+"widx": 99,
+"truth": 78.078,
+"orig": 76.618,
+"pause": 1.0699999999999932
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 11,
+"widx": 110,
+"truth": 84.71,
+"orig": 83.667,
+"pause": 1.480000000000004
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 12,
+"widx": 122,
+"truth": 88.422,
+"orig": 88.422,
+"pause": 0.3400000000000034
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 13,
+"widx": 133,
+"truth": 91.675,
+"orig": 91.675,
+"pause": 0.12000000000000455
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 14,
+"widx": 144,
+"truth": 96.305,
+"orig": 96.305,
+"pause": 0.6600000000000108
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 15,
+"widx": 153,
+"truth": 101.393,
+"orig": 99.266,
+"pause": 0.23999999999999488
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 16,
+"widx": 160,
+"truth": 105.105,
+"orig": 105.105,
+"pause": 0.0
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 17,
+"widx": 168,
+"truth": 109.735,
+"orig": 109.943,
+"pause": 0.0800000000000125
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 18,
+"widx": 180,
+"truth": 115.574,
+"orig": 115.824,
+"pause": 0.12000000000000455
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 19,
+"widx": 193,
+"truth": 120.954,
+"orig": 119.786,
+"pause": 0.8200000000000074
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 20,
+"widx": 202,
+"truth": 125.584,
+"orig": 125.584,
+"pause": 0.6400000000000006
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 21,
+"widx": 213,
+"truth": 129.171,
+"orig": 129.171,
+"pause": 0.13999999999998636
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 22,
+"widx": 223,
+"truth": 133.05,
+"orig": 132.674,
+"pause": 0.8199999999999932
+},
+{
+"song": "Silent Child - ADHD",
+"cue": 23,
+"widx": 235,
+"truth": 136.553,
+"orig": 136.553,
+"pause": 0.23999999999998067
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 0,
+"widx": 0,
+"truth": 16.516,
+"orig": 16.516,
+"pause": null
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 1,
+"widx": 19,
+"truth": 25.359,
+"orig": 25.359,
+"pause": -0.21999999999999886
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 2,
+"widx": 26,
+"truth": 32.741,
+"orig": 32.741,
+"pause": 4.399999999999999
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 3,
+"widx": 44,
+"truth": 40.832,
+"orig": 40.832,
+"pause": 0.03999999999999915
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 4,
+"widx": 53,
+"truth": 49.258,
+"orig": 49.258,
+"pause": 4.380000000000003
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 5,
+"widx": 60,
+"truth": 57.307,
+"orig": 57.307,
+"pause": 4.859999999999999
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 6,
+"widx": 65,
+"truth": 65.983,
+"orig": 65.983,
+"pause": 5.419999999999995
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 7,
+"widx": 74,
+"truth": 72.781,
+"orig": 72.781,
+"pause": 0.04999999999999716
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 8,
+"widx": 91,
+"truth": 81.748,
+"orig": 81.748,
+"pause": 0.5
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 9,
+"widx": 107,
+"truth": 93.677,
+"orig": 93.677,
+"pause": 0.060000000000002274
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 10,
+"widx": 115,
+"truth": 97.931,
+"orig": 97.931,
+"pause": 0.0
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 11,
+"widx": 126,
+"truth": 104.604,
+"orig": 104.604,
+"pause": 3.0200000000000102
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 12,
+"widx": 130,
+"truth": 107.816,
+"orig": 108.275,
+"pause": 2.1000000000000085
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 13,
+"widx": 136,
+"truth": 115.699,
+"orig": 114.281,
+"pause": 0.480000000000004
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 14,
+"widx": 139,
+"truth": 122.247,
+"orig": 122.414,
+"pause": 4.1200000000000045
+},
+{
+"song": "Tom Odell - Best Day Of My Life",
+"cue": 15,
+"widx": 157,
+"truth": 129.921,
+"orig": 129.921,
+"pause": 0.18000000000000682
+}
+]
