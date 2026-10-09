@@ -1,8 +1,8 @@
-# Lyric Panel: handoff (rewritten 2026-10-08, v2 added 2026-10-09)
+# Lyric Panel: handoff (rewritten 2026-10-08, v2 added 2026-10-09, last updated at the end of 2026-10-09)
 
 Read this first. It replaces the chats that built the panels and tested the lyric timing.
 
-## Start here: two panels (state at the end of 2026-10-09)
+## Start here: two panels (state at the end of 2026-10-09; everything is committed and pushed, commit `5bb2005`)
 
 There are now TWO separate panels in Premiere's Window > Extensions menu. Always check which one the user means.
 
@@ -11,7 +11,7 @@ There are now TWO separate panels in Premiere's Window > Extensions menu. Always
 | Code | `LyricPanel\` | `LyricPanel2\` |
 | Where lyrics and timing come from | the user's lyrics.txt + three Whisper runs on this PC (about 30 min per song) | lrclib.net: text and line times downloaded in seconds |
 | Songs folder | one sub-folder per song | flat: mp3 files directly in the folder, SRT next to each |
-| Status | confirmed working (2026-10-08) | fetch, build and fades confirmed by the user on 2026-10-09 (TikTok Melody, 3 songs); the last round of changes is untested (see the v2 section) |
+| Status | confirmed working (2026-10-08) | fetch, build, centering and fades confirmed by the user on 2026-10-09 (TikTok Melody, 3 songs, "everything works"); Save SRTs and Export not tried in v2 yet |
 
 The intended workflow: v2 first for a folder of mp3s; whatever LRCLIB does not have is moved to `Not found\` inside that folder and goes through v1. Both panels share the settings and add to the same two sequences. Sections below: shared facts, then "How the panel works" (= v1), then the v2 section.
 
@@ -57,11 +57,11 @@ The installed loaders hard-code `DEV = "C:/Users/HP/Downloads/AI/Lyric Test/Lyri
 
 Panel data: `%APPDATA%\LyricPanel\` (`<Project>.json` settings, `<Project>.batches.json`, temp combined SRTs). `Rock Tunes.json` and `Rock Tunes_1.json` still point at the old songs folder (`Lyric Test\Rock Tunes`, which no longer exists): the user just picks the folder again.
 
-Settings are per project file. A project with no settings file borrows from a same-channel file (`Rock Tunes_1` <-> `Rock Tunes`, trailing `_N` ignored). A channel with none starts with blank lyric font/size (`textSet` false) and Build refuses until they are filled in, so one channel's font is never used to wrap another's lyrics. The Lyric text card is locked once set, with an Edit checkbox to unlock; the font is a dropdown of installed Windows fonts; a small frame preview shows the max row width with a sample line wrapped the way a build would.
+Settings are per project file. A project with no settings file borrows from a same-channel file (`Rock Tunes_1` <-> `Rock Tunes`, trailing `_N` ignored). A channel with none starts with blank lyric font/size (`textSet` false) and Build refuses until they are filled in, so one channel's font is never used to wrap another's lyrics. The Lyric text card is locked once set, with an Edit checkbox to unlock; the font is a dropdown of installed Windows fonts. The card holds only Font, Size and All caps (the row-width slider and the frame preview were removed on 2026-10-09 at the user's request). The Size must equal the size in the user's text style, or wrapping and centering are off.
 
 ## How the panel works (Lyric Panel v1; v2 shares everything from Build step 3 on, and the Settings and Export tabs)
 
-Changes made to v1 on 2026-10-09, none of them tested by the user in Premiere yet: menu name "Lyric Panel v1" (manifest); Build / Add fades / Save SRTs / Export re-read the shared batch file first, and Build re-reads `bgNext` (so v1 and v2 can add to each other's batch); the font dropdown also takes the real family names from Windows (PowerShell `InstalledFontCollection`), because the registry lists some fonts by file label ("BaksoSapi" for "Bakso Sapi"); `LPFN.placeOverlay` handles an overlay that sits inside a nest in the template (see v2 section). `git diff v1.0 -- LyricPanel` shows exactly these.
+Changes made to v1 on 2026-10-09, none of them tested by the user in v1 itself (the shared ones were confirmed in v2): the centering, row-width and clean-up changes of the "Lyric centering" section; menu name "Lyric Panel v1" (manifest); Build / Add fades / Save SRTs / Export re-read the shared batch file first, and Build re-reads `bgNext` (so v1 and v2 can add to each other's batch); the font dropdown also takes the real family names from Windows (PowerShell `InstalledFontCollection`), because the registry lists some fonts by file label ("BaksoSapi" for "Bakso Sapi"); `LPFN.placeOverlay` handles an overlay that sits inside a nest in the template (see v2 section). `git diff v1.0 -- LyricPanel` shows exactly these.
 
 **Build tab**
 
@@ -69,13 +69,13 @@ Changes made to v1 on 2026-10-09, none of them tested by the user in Premiere ye
 2. **Create timing** (for ticked NEEDS SRT / UNFINISHED songs), per song: `python -m demucs` (skipped if vocals.wav exists; afterwards the panel deletes its own `sep\` folder and `song.mp3`), then `pipeline\pipeline_v2.py . lyrics.utf8.txt <lang>` with the song folder as cwd, result copied to `<Song>.srt`. `pipeline_v2.py` runs `pipeline_run.py` three times (Whisper small; small with `ALIGN_OPTS` max_word_dur 1.5, word_dur_factor 1.5, nonspeech_skip 2.0; medium) in `<Song>\runs\<tag>\` (vocals hard-linked; a run is redone only if the lyrics changed), then `combine.py` takes, per lyric line, the middle start of the runs after the stretched-first-word rule (a first word longer than 1.0 s starts 0.35 s before its end) and builds captions exactly as pipeline.py does. It prints `STEP n of what`, which the panel shows as the step text. About 30 minutes per song, 50 with Premiere open (measured once). Interruptions: a `timing.busy` marker (with the python pid) sits in the song folder until `<Song>.srt` is renamed into place; vocals.wav and the SRT appear only via rename, finished runs are kept, so a stopped job resumes. The notice button is Stop while running (taskkill of the process tree); closing the panel kills the child. Language is detected per song from the lyrics (`detectLang`); there is no language setting.
 3. **Build**: find sequences named **`Lyric Panel Lyrics`** and **`Lyric Panel Main`**. Both exist: add the ticked songs after the last one. Neither: clone the Lyrics template and Main template and empty both clones. Only one: stop with a message. Songs already in the batch are skipped.
 4. Lyrics sequence: song audio on A1, back to back with the gap (default 20 s).
-5. One combined SRT for the new songs: times offset to each song's slot, snapped to 23.976 frames, shifted **+1 frame** (Premiere 23.3 places SRT cues one frame early), rows re-wrapped by real pixel width of the channel font (canvas `measureText`), lyrics needing more than 2 rows split into two screens (time shared by text length).
+5. One combined SRT for the new songs: times offset to each song's slot, snapped to 23.976 frames, shifted **+1 frame** (Premiere 23.3 places SRT cues one frame early), rows re-wrapped by real pixel width of the channel font (canvas `measureText`) at 75% of the frame width (`BOX_W`, the caption text box), lyrics needing more than 2 rows split into two screens (time shared by text length).
 6. `createCaptionTrack`, then the upgrade: switch to another open timeline and back (gives the timeline keyboard focus), `Edit > Select All`, confirm via `isSelected()`, fire `Graphics and Titles > Upgrade Caption to Graphic`. Retries up to 3 times. Then remove empty video tracks (QE), hide caption tracks.
-7. Verify every graphic start/end against the expected frame; set an approximate vertical position (Vector Motion).
+7. Verify every graphic start/end against the expected frame; center each lyric vertically (Vector Motion, `lyricLift`, see "Lyric centering").
 8. Main sequence: overlay per song (optional, look copied from a template clip of the same file), one background per song from the Backgrounds bin (natural sort, cycle continues across batches via `bgNext`), then clear the lyric track and all audio and place the Lyrics sequence as a nest with its audio on A1.
-9. Leave the new lyric graphics selected. **The user then applies their text style by hand**, and adjusts lyric timing by hand.
+9. Leave the new lyric graphics selected. After a clean build the Build tab shows only the "Done. N songs, N lyrics." line; the result lines go to the Log tab and a "Check these" card appears only for failures. **The user then applies their text style by hand**, and adjusts lyric timing by hand.
 
-**Settings tab**: Lyrics template, Main template (auto-picked), main-sequence tracks for backgrounds / lyrics / overlay, backgrounds bin, next background, overlay video, gap, font, size, all caps, max row width.
+**Settings tab**: Lyrics template, Main template (auto-picked), main-sequence tracks for backgrounds / lyrics / overlay, backgrounds bin, next background, overlay video, gap, font, size, all caps.
 
 **Export tab**
 - **Add fades** (`addFades`, `LPFN.addFades` / `lpAddKey`): writes 4 keyframes on each lyric's own Opacity (0 at start, 100 after 6 frames, 100 at 6 frames before the end, 0 at the end; `FADE_FRAMES = 6`) on the video track of `Lyric Panel Lyrics` with the most clips, 40 clips per host call, replacing any opacity keyframes already there, so it is re-run after trimming. No selection needed. Keyframe times are the clip's in point + offset (source time); `addKey` takes a Time object (form 0). Confirmed by the user in Premiere 2026-10-08 (fade in and fade out both fine).
@@ -104,26 +104,23 @@ A second panel in `LyricPanel2\` (own `install\`, `js\main.js`, `js\lrc.js`; `js
 
 **LRC -> SRT (`LRC.toCues`):** v1's caption rules (start 6 frames before the line, two lines of at most 46 characters share a screen if the gap is 2 s or less, a lyric ends 11 frames before the next, holds at most 4 s into a break, last one +1.4 s). LRCLIB has only line starts, so a line's sung end is LRCLIB's own empty end mark when there is one (then the lyric goes 0.5 s later), else a guess: words x the song's own seconds-per-word (the quicker third of "seconds to next line / words", 0.25 to 1.5), capped at the next line. With that guess the Spanish test song came out as 13 two-row screens like the approved SRT; with a fixed rate it was 24 single rows. Lines are cleaned like v1's lyrics (one-word ad-libs in brackets dropped, an ad-lib-only line dropped). Output is frame-snapped like v1's captions.srt.
 
-**Export tab additions (v2 only):** after a successful run Add fades / Save SRTs turn green and read "Fades added" / "SRTs saved" (`renderActions`); the state is stored in the batch record (`fadesFor` / `srtsFor` = song count:lyric count) so a build that adds songs resets it. They stay clickable (fades must be redone after a trim). All action buttons are disabled while anything runs.
+**Export tab additions (v2 only):** after a successful run Add fades / Save SRTs turn green and read "Redo fades" (the user's wording, no tick) / "SRTs saved" (`renderActions`); the state is stored in the batch record (`fadesFor` / `srtsFor` = song count:lyric count) so a build that adds songs resets it. They stay clickable (fades must be redone after a trim). All action buttons are disabled while anything runs.
 
 **Overlay inside a nest (both panels' host.jsx, `lpFindNestOfItem`):** if the chosen overlay video is not directly in a template but a nest in the template contains it (the user's TikTok Melody template has "Dust (Nest)"), that nest is placed over each song with the nest clip's motion, opacity and blend mode. Before this the build said the overlay was not in the templates and used normal blending.
 
-**What the user has confirmed in Premiere (2026-10-09, TikTok Melody, 3 songs):** scan and chips, Fetch SRTs, the move to Not found, Build (93 lyrics, all on the exact frame), Add fades. **Written after that test and NOT yet seen by the user:** the single main button and automatic ticks, the green done-state, the overlay-nest fix, the Bakso Sapi font fix (Windows does report "Bakso Sapi"; the dropdown was not seen).
+**What the user has confirmed in Premiere (2026-10-09, TikTok Melody, 3 songs):** scan and chips, Fetch SRTs, the move to Not found, Build (93 lyrics, all on the exact frame), Add fades. Later the same day the user rebuilt several times with the single main button, the overlay nest (log: `placed as the template nest "Dust"`), the Bakso Sapi font and the new centering, and said "everything works". Not individually commented on by the user: the green done-state of Save SRTs.
 
 **Known weak spots:** LRCLIB text is volunteers' (typos, extra intro or ad-lib lines, other line breaks than the user's own lyrics; the "i'm yours" entries have a line at about 1 s the user's lyrics lack); a well-formed entry with wrong times cannot be detected (one Rock Tunes entry ran 0.4 s early throughout); the mp3 must be the released cut (a rip with a longer intro fails the length check, which is the wanted behaviour); "Megara - Truco o trato" has entries of 4:00 and 4:03 although the user did not find it on the site.
 
-## Lyric centering and row width (found 2026-10-09 evening, changes NOT yet tested by the user)
+## Lyric centering, row width and clean-up (2026-10-09 evening; both panels; confirmed by the user in v2, commit `5bb2005`)
 
 Read from the saved TikTok Melody.prproj (`AE.ADBE Text` component): a graphic upgraded from a caption is **box text**. In the Source Text flatbuffer the root table's field 2 / field 3 are the box width / height (1440 x 324 on 1920x1080 = 75% x 30% of the frame) and the component's own Position param (Param 2) is the box's top-left, normalised: `0.125:0.65` for an imported SRT (bottom zone, box 702..1026), `0.125:0.35` when the caption zone is centre. Field 1 / field 8 of the layer's style table are font size / tracking. The user's hand-made lyrics are point text (no fields 2 / 3).
 
-- The user's text style puts the text at the TOP of that box (that is the "gap at the bottom" and the "shifts up"). Which flatbuffer field holds the vertical alignment is not known: no middle-aligned sample was in the file.
-- Premiere wraps any row wider than the box. The 3-row lyric: Max row width was 95% (1824 px) and the style was size 75 while the panel setting said 70. Both panels now cap the row width at `BOX_W` = 75% (slider 40-75).
-- Position: `lyricLift(rows, frameH)` replaces the old `lift` / `perRow` settings (which ignored the font size and left lyrics 20-40 px too high): middle of the text = box top + (`ROW_FIRST` 0.31 + (rows-1) x `ROW_PITCH` 1.2 / 2) x font size, calibrated from two screenshots of Bakso Sapi at 70 and 75 (about +-3 px); `ROW_FIRST` is font-dependent and unchecked for other fonts.
-- Exact route, proposed to the user and not answered yet: set the style's vertical alignment to middle (Essential Graphics, then redefine the style). If a style carries that, every lyric is centered in the box whatever its rows or font, and the lift becomes the constant 0.30 (box middle 864 -> 540). Then replace `lyricLift` by that constant.
-- The panel's Size setting must equal the style's real size, or both wrapping and centering are off.
-- v2: the done fades button now reads "Redo fades" (no tick), still green.
-- **Confirmed by the user's screenshots at 4:49 PM (TikTok Melody, 97 lyrics, Bakso Sapi 70):** a 1-row and a 2-row lyric both sit within about 2 px of the frame middle, and the earlier 3-row lyric is 2 rows. The style-vertical-middle idea was not tried and is not needed for this font.
-- Asked for after that and written in both panels, NOT yet seen by the user: the Max row width slider is gone (rows always wrap at `BOX_W`; `maxWidth` in old settings files is ignored); the Build tab's Result card is hidden after a clean build, every result line goes to the log (`result: ok / PROBLEM`), and the card ("Check these") appears only with the failed lines; the tick box of an IN BATCH song is hidden; the frame preview and its explanation text are removed from the Lyric text card (only Font, Size, All caps and the Edit lock remain; mentions of the preview and the row-width slider elsewhere in this file are out of date). User's rule: keep the panel clean, show text only when something is wrong.
+- The user's text style puts the text at the TOP of that box (that was the "gap at the bottom" and the "shifts up" they reported). Which flatbuffer field holds the vertical alignment is not known: no middle-aligned sample was in the file.
+- Premiere wraps any row wider than the box by itself (the 3-row lyric: the row-width setting was 95% and the style was size 75 while the panel said 70). Rows now always wrap at `BOX_W` = 75% of the frame width; there is no setting (`maxWidth` in old settings files is ignored).
+- Position: `lyricLift(rows, frameH)` replaced the old `lift` / `perRow` settings (they ignored the font size and left lyrics 20-40 px too high): middle of the text = box top + (`ROW_FIRST` 0.31 + (rows-1) x `ROW_PITCH` 1.2 / 2) x font size. Calibrated from screenshots of Bakso Sapi at 70 and 75. **Confirmed:** on the user's screenshots (97 lyrics, Bakso Sapi 70) a 1-row and a 2-row lyric sit within about 2 px of the frame middle. `ROW_FIRST` depends on the font and is unchecked for the other channels' fonts: if another channel looks off-centre, measure a screenshot and make it per font.
+- Fallback idea, never tried: set the style's vertical alignment to middle and redefine the style; if a style carries that, the lift is the constant 0.30 for any font and row count.
+- Clean-up the user asked for ("keep this plugin clean", show text only when something is wrong): row-width slider, frame preview and its text removed from Settings; Build result goes to the log (`result: ok / PROBLEM`), the card ("Check these") shows only failed lines; no tick box on an IN BATCH song; v2's done fades button reads "Redo fades".
 
 ## Verified facts about Premiere 23.3 scripting
 
@@ -179,21 +176,23 @@ On the first fresh song timed with the three-run method (Dance Pilot, 2026-10-08
 
 ## Not done yet (rough priority)
 
-v2 first (the user is actively testing it):
-- a. Get the user's verdict on the 2026-10-09 last round (single main button, green done-state on Add fades / Save SRTs, overlay nest). Open question put to the user: should the green buttons lock completely with a "Redo" tick box.
+The user said on 2026-10-09 that the next session starts with new things they want changed: ask what, before picking from this list.
+
+v2 first (the user is actively using it):
+- a. Centering on the other channels' fonts (see "Lyric centering": `ROW_FIRST` was measured for Bakso Sapi only).
 - b. v2 lyric END times are estimated and were not reviewed by the user on their own; ask how lyrics disappear before instrumental breaks.
 - c. Stretched (sped-up / slowed) songs in the panel use the length ratio only; the Python test fitted the speed against a Whisper run and was approved on one song. Not verified in the panel.
 - d. A line where LRCLIB has an extra first word, extra intro / ad-lib lines in LRCLIB text, and wrong-but-plausible entries are not handled.
 - e. Not tested at all in v2: Save SRTs, Export, a second build added to an existing batch, v1 and v2 building into the same batch, Rock Vivo / Brit Tunes (video backgrounds).
-- f. Commit: everything up to the end of 2026-10-09 is committed and pushed (see git log); commit again after the next confirmed round.
+- f. Commit: everything up to the end of 2026-10-09 is committed and pushed (`5bb2005`); commit again after the next confirmed round.
 
 v1 and general:
 
 0. Set up and test the other channels: Dance Pilot was built once on 2026-10-08 (font Titan One); a video-background channel (Rock Vivo, Brit Tunes) has not been built with the panel yet.
-1. Automatic centering needs a new approach (frame export failed).
+1. Automatic centering: done by calculation on 2026-10-09 (see "Lyric centering"); the old frame-export code (`centerLyrics`, `LPFN.exportFrame`) is still in the files, unwired.
 2. Written but never confirmed by the user: Stop / Continue timing after an interruption with the three-run script, UNFINISHED state, language detection on a mixed-language song, export interruption recovery, exporting more than one song in a row.
 3. Reuse SRTs from the Lyric Library on scan (match name plus audio length within 1 s).
-4. Split long lyrics by word timings; review the 72% row-width default; revisit the lyric-end rule (see above).
+4. Split long lyrics by word timings; revisit the lyric-end rule (see above).
 5. Automate the text style if any route works.
 6. Packaging: remove the hard-coded DEV path, bundle the pipeline runtime, sign the panel, Windows-only menu trigger, menu names differ by Premiere version/language.
 7. Space: `vocals.wav` (about 40 MB per song) stays in every song folder; it is only needed to re-time a song.
