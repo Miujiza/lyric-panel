@@ -22,3 +22,9 @@ __pycache__/
 
 LyricPanel2/_tmp/*
 !LyricPanel2/_tmp/check.html
+
+LyricPanel3/_tmp/*
+!LyricPanel3/_tmp/check.html
+
+# pasted lyric samples
+example.txt

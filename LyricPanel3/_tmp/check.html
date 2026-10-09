@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Lyric Panel preview</title></head>
+<body>
+<script>
+  // Browser-only preview with fake Premiere/Node, for checking syntax, layout and the LRCLIB lookups (those are real).
+  window.__errors = [];
+  window.onerror = function (m, s, l, c) { window.__errors.push(m + ' @' + l + ':' + c); };
+  window.addEventListener('unhandledrejection', function (e) { window.__errors.push('rejection: ' + (e.reason && e.reason.message || e.reason)); });
+  var DEV = 'C:/dev', files = {};
+  files['C:/appdata/LyricPanel/Rock Tunes_1.json'] = JSON.stringify({ font: 'Arial', size: 115, caps: true, maxWidth: 72, songsDir2: 'C:/songs' });
+  // file name -> length in seconds (what the fake ffprobe answers)
+  var LEN = {
+    'Kodaline - The One.mp3': 233.1, 'Megara - Truco o trato.mp3': 200, 'Margarita Siempre Viva - Lentas Nubes de Fuego.mp3': 112,
+    "Isabel LaRosa - I'm yours (sped up).mp3": 127.8, 'Jessie Murph - About You (sped up).mp3': 140, 'Wuicho kun - Llora.mp3': 213,
+    'Cults - Gilded Lily.mp3': 213, 'badname.mp3': 100, 'Kodaline - The One (Live).mp3': 251, 'Llora - Wuicho kun.mp3': 213,
+    'Sia - Unstoppable (R3HAB Remix).mp3': 162, 'Eurythmics, Annie Lennox, Dave Stewart - Sweet Dreams (Are Made of This) (Remastered).mp3': 217
+  };
+  var SONGS = Object.keys(LEN).concat(['Cults - Gilded Lily.srt']);
+  var srt = '1\n00:00:08,383 --> 00:00:16,057\nfirst row\nsecond row\n\n2\n00:00:17,000 --> 00:00:20,000\nanother\n';
+  function leaf(p) { return p.split('/').pop(); }
+  var fakeFs = {
+    existsSync: function (p) { return files[p] !== undefined || p === 'C:/songs' || p === 'C:/dev/_tmp' || p === 'C:/appdata/LyricPanel' || (p.indexOf('C:/songs/') === 0 && SONGS.indexOf(p.slice(9)) >= 0); },
+    rmSync: function () {}, mkdirSync: function (p) { if (p.indexOf('C:/songs/') === 0) SONGS.push(p.slice(9)); }, appendFileSync: function () {}, unlinkSync: function () {},
+    renameSync: function (a, b) { var i = SONGS.indexOf(leaf(a)); if (i >= 0) SONGS.splice(i, 1); (window.__moved = window.__moved || []).push(b); },
+    writeFileSync: function (p, d) { files[p] = d; if (p.indexOf('C:/songs/') === 0 && p.slice(9).indexOf('/') < 0 && SONGS.indexOf(p.slice(9)) < 0) SONGS.push(p.slice(9)); },
+    copyFileSync: function () {},
+    readFileSync: function (p) { if (files[p] !== undefined) return files[p]; if (/\.srt$/.test(p)) return srt; throw new Error('ENOENT ' + p); },
+    statSync: function (p) { return { isDirectory: function () { return !/[.]\w{2,4}$/.test(p); } }; },
+    readdirSync: function (p) { return p === 'C:/songs' ? SONGS.slice() : []; }
+  };
+  var mods = {
+    fs: fakeFs,
+    path: { join: function () { return Array.prototype.join.call(arguments, '/'); }, basename: function (p) { return p.replace(/\\/g, '/').split('/').pop(); } },
+    child_process: { execFile: function (c, a, o, cb) {
+      if (typeof o === 'function') cb = o;
+      if (/ffprobe/.test(c)) return setTimeout(function () { cb(null, String(LEN[mods.path.basename(a[a.length - 1])] || ''), ''); }, 5);
+      setTimeout(function () { cb(null, '    Arial (TrueType)    REG_SZ    arial.ttf\r\n    DK Midnight Chalker (TrueType)    REG_SZ    x.ttf\r\n', ''); }, 10);
+    } }
+  };
+  function req(n) { return mods[n]; }
+  window.process = { env: { APPDATA: 'C:/appdata', LOCALAPPDATA: 'C:/local' } };
+  files['C:/local/LyricPanel/work/badname/lyrics.txt'] = 'first line\nsecond line';
+  files['C:/appdata/LyricPanel/sources.json'] = JSON.stringify({ 'c:/songs/cults - gilded lily.srt': 'whisper' });
+  window.cep = { fs: { showOpenDialogEx: function () { return { err: 0, data: ['C:\\songs'] }; } } };
+  window.__adobe_cep__ = {
+    evalScript: function (script, cb) {
+      var m = /lpRun\("(\w+)","([^"]+)","([^"]+)"\)/.exec(script), data = {};
+      if (m[1] === 'info') data = { version: '23.3.0', project: 'Rock Tunes_1.prproj', sequences: [{ name: 'Lyrics', id: 'a', w: 1920, h: 1080, timebase: '10594584000', v: 5, a: 1 }, { name: 'Rock Tunes', id: 'b', w: 1920, h: 1080, timebase: '10594584000', v: 3, a: 3 }], bins: [{ name: 'Assets', items: 5 }, { name: 'Backgrounds', items: 24 }] };
+      if (m[1] === 'binItems') data = { found: true, items: new Array(24).fill(0).map(function (x, i) { return { name: (i + 1) + '.jpg', path: 'C:/bg/' + (i + 1) + '.jpg' }; }) };
+      if (m[1] === 'videoItems') data = { items: [] };
+      files[m[3]] = JSON.stringify({ ok: true, data: data });
+      setTimeout(function () { cb('ok'); }, 5);
+    }
+  };
+</script>
+<script src="../js/lrc.js"></script>
+<script src="../js/main.js"></script>
+</body>
+</html>

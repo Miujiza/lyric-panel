@@ -317,6 +317,28 @@ LPFN.selectTrack = function (a) {
     return { selected: n };
 };
 
+// Selects the clips of one video track that start inside any of the given time ranges, and nothing else.
+LPFN.selectRange = function (a) {
+    var seq = lpSeqById(a.seqId), t, i, j, tr, s, hit, n = 0;
+    for (t = 0; t < seq.videoTracks.numTracks; t++) {
+        tr = seq.videoTracks[t];
+        for (i = 0; i < tr.clips.numItems; i++) {
+            hit = false;
+            if (t === a.track) {
+                s = Number(tr.clips[i].start.ticks);
+                for (j = 0; j < a.ranges.length && !hit; j++) hit = s >= a.ranges[j].s && s < a.ranges[j].e;
+            }
+            tr.clips[i].setSelected(hit, i === tr.clips.numItems - 1);
+            if (hit) n++;
+        }
+    }
+    for (t = 0; t < seq.audioTracks.numTracks; t++) {
+        tr = seq.audioTracks[t];
+        for (i = 0; i < tr.clips.numItems; i++) tr.clips[i].setSelected(false, false);
+    }
+    return { selected: n };
+};
+
 LPFN.createCaptions = function (a) {
     var seq = lpSeqById(a.seqId), item = lpFindByPath(a.path);
     if (!item) throw new Error('SRT not imported: ' + a.path);
