@@ -11,15 +11,20 @@
   var F = 10594584000;          // ticks per frame at 23.976
   var FPS_N = 24000, FPS_D = 1001, FPS = FPS_N / FPS_D;
   var CAPTION_BIAS = 1;         // Premiere 23.3 puts an imported SRT cue one frame earlier than its time
+  // A graphic made from a caption is a fixed text box (read from a saved project, 2026-10-09): 75% of the frame wide,
+  // 30% high, its top at 65% of the frame height. Premiere wraps any row wider than the box by itself.
+  var BOX_W = 75, BOX_TOP = 0.65;
+  // With the text at the top of that box: middle of the first row of capitals = ROW_FIRST x font size below the
+  // box top, and each further row adds ROW_PITCH x font size (measured on Bakso Sapi at 70 and 75).
+  var ROW_FIRST = 0.31, ROW_PITCH = 1.2;
   var callNo = 0, busy = false;
 
   var DEFAULTS = {
     lyricsTemplate: '', mainTemplate: '', bgTrack: 0, lyricTrack: 1, bgBin: 'Backgrounds', gap: 20,
-    font: 'DK Midnight Chalker', size: 115, maxWidth: 72, caps: true,
+    font: 'DK Midnight Chalker', size: 115, caps: true,
     lift: 19, perRow: 5.5, bgNext: 0, songsDir: '', songsDir2: '', overlay: '', overlayTrack: 2
   };
   var videoItems = [];          // video files in the project, for the overlay picker
-  var PREVIEW_LINE = 'Long lyrics wrap onto two rows';
   var fontNames = [];           // installed fonts, filled by loadFontList
   var settings = JSON.parse(JSON.stringify(DEFAULTS));
   var project = null;           // result of host('info')
@@ -167,10 +172,7 @@
         '<div id="textBody">' +
           row('Font', '<select id="font"></select><span class="badge" id="fontOk"></span>') +
           row('Size', '<input type="number" id="size" min="10" step="1"><span style="margin-left:10px">All caps</span><input type="checkbox" id="caps">') +
-          row('Max row width', slider('maxWidth', 40, 95, 1, '%')) +
         '</div>' +
-        '<canvas id="wrapPrev" width="480" height="270"></canvas>' +
-        '<p class="hint">The picture is the video frame. A row of lyrics never goes past the two blue lines; a longer lyric wraps onto a second row, and one that needs more than two rows becomes two screens. No words are ever cut. Set once per channel to match its text style. Changing these does not alter a batch that is already built.</p>' +
       '</div>' +
     '</section>' +
 
@@ -278,7 +280,6 @@
     if ($(id).selectedIndex < 0 && options.length) $(id).selectedIndex = 0;
   }
   function showSliders() {
-    ['maxWidth'].forEach(function (id) { $(id + 'V').textContent = $(id).value + $(id + 'V').dataset.unit; });
   }
   function checkFont() {
     var name = $('font').value.trim(), ok = fontReady(name, 100);
@@ -295,25 +296,7 @@
   function setTextLock(locked) {
     $('textEdit').checked = !locked;
     $('textBody').className = locked ? 'locked' : '';
-    ['font', 'size', 'caps', 'maxWidth'].forEach(function (id) { $(id).disabled = locked; });
-  }
-  // Draws the frame with the widest allowed row and a sample line wrapped the way a build would wrap it.
-  function drawPreview() {
-    var c = $('wrapPrev'), g = c.getContext('2d'), W = c.width, H = c.height;
-    var tpl = (project ? project.sequences : []).filter(function (q) { return q.name === $('lyricsTemplate').value; })[0];
-    var fw = tpl ? tpl.w : 1920, k = W / fw;
-    var font = $('font').value, size = parseFloat($('size').value) || 0, caps = $('caps').checked, pct = parseFloat($('maxWidth').value) || 72;
-    var half = W * pct / 200;
-    g.fillStyle = '#0c0c0e'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#1d1d21'; g.fillRect(W / 2 - half, 0, half * 2, H);
-    g.strokeStyle = '#1aa3ff'; g.lineWidth = 1; g.setLineDash([5, 4]);
-    g.beginPath(); g.moveTo(W / 2 - half, 0); g.lineTo(W / 2 - half, H); g.moveTo(W / 2 + half, 0); g.lineTo(W / 2 + half, H); g.stroke();
-    g.setLineDash([]);
-    if (!font || !size) return;
-    ctx.font = size + 'px "' + font + '", sans-serif';
-    var rows = fitRows(PREVIEW_LINE, function (t) { return ctx.measureText(caps ? t.toUpperCase() : t).width; }, fw * pct / 100).slice(0, 2);
-    g.font = (size * k) + 'px "' + font + '", sans-serif'; g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    rows.forEach(function (r, i) { g.fillText(caps ? r.toUpperCase() : r, W / 2, H / 2 + (i - (rows.length - 1) / 2) * size * k * 1.2); });
+    ['font', 'size', 'caps'].forEach(function (id) { $(id).disabled = locked; });
   }
   async function refreshBgCount() {
     try {
@@ -353,9 +336,8 @@
     fillFonts();
     $('size').value = settings.textSet ? settings.size : '';
     $('caps').checked = !!settings.caps;
-    $('maxWidth').value = settings.maxWidth;
     setTextLock(!!settings.textSet);
-    showSliders(); checkFont(); drawPreview();
+    showSliders(); checkFont();
     if (project) refreshBgCount();
   }
   function readSettings() {
@@ -372,7 +354,6 @@
     settings.size = parseFloat($('size').value) || 0;
     settings.textSet = !!(settings.font && settings.size);
     settings.caps = $('caps').checked;
-    settings.maxWidth = parseFloat($('maxWidth').value) || 72;
     saveSettings();
   }
   function loadFontList() {
@@ -384,7 +365,7 @@
       var cur = $('font').value;
       fillFonts();
       if (cur) $('font').value = cur;
-      checkFont(); drawPreview();
+      checkFont();
     }
     // the registry lists a font by its file's label, which is not always the name programs use ("BaksoSapi" for
     // "Bakso Sapi"), so Windows is also asked for the real family names
@@ -682,8 +663,8 @@
   function renderActions() {
     var faded = !!batch && batch.fadesFor === batchKey(batch), saved = !!batch && batch.srtsFor === batchKey(batch);
     $('addFades').className = 'btn' + (faded ? ' done' : '');
-    $('addFades').innerHTML = faded ? ICON.check + 'Fades added' : 'Add fades';
-    $('addFades').title = faded ? 'Every lyric has its fade. Click again only after you trim a lyric.' : 'Puts a 6-frame fade in and a 6-frame fade out on every lyric, measured from where each lyric really starts and ends.';
+    $('addFades').innerHTML = faded ? 'Redo fades' : 'Add fades';
+    $('addFades').title = faded ? 'Every lyric has its fade. Redo them only after you trim a lyric.' : 'Puts a 6-frame fade in and a 6-frame fade out on every lyric, measured from where each lyric really starts and ends.';
     $('addFades').disabled = busy || !batch;
     $('saveSrts').className = 'btn' + (saved ? ' done' : '');
     $('saveSrts').innerHTML = saved ? ICON.check + 'SRTs saved' : 'Save SRTs';
@@ -709,7 +690,7 @@
         : c.state === 'error' ? '<span class="chip bad"' + why + '>NO CONNECTION</span>'
         : '<span class="chip bad"' + why + '>NOT FOUND</span>';
       var can = (s.ready || fetchable(s)) && !inBatch;
-      return '<div class="song' + (s.on ? '' : ' off') + '"><input type="checkbox" data-i="' + i + '"' + (s.on && can ? ' checked' : '') + (can ? '' : ' disabled') + '>' +
+      return '<div class="song' + (s.on ? '' : ' off') + '"><input type="checkbox" data-i="' + i + '"' + (s.on && can ? ' checked' : '') + (can ? '' : ' disabled') + (inBatch ? ' style="visibility:hidden"' : '') + '>' +
         '<span class="name" title="' + esc(s.name) + '">' + esc(s.name) + '</span>' +
         '<span class="meta">' + (s.cues ? s.cues + ' lyrics' : '') + '</span>' + chip + '</div>';
     }).join('');
@@ -840,7 +821,7 @@
 
     // 3. one combined SRT for the new songs, re-wrapped for this channel's font
     tick('Preparing lyrics');
-    var measure = makeMeasure(), maxPx = tpl.w * settings.maxWidth / 100;
+    var measure = makeMeasure(), maxPx = tpl.w * BOX_W / 100;
     var lines = [], n = 0, added = [], split = 0, rewrapped = 0;
     picked.forEach(function (song) {
       var prevEnd = 0; song.lyricCount = 0;
@@ -886,7 +867,7 @@
     saveBatches();
 
     tick('Checking timing and positioning lyrics');
-    var check = await positionLyrics(added);
+    var check = await positionLyrics(added, tpl.h);
 
     // 5. main sequence: overlay and background per new song, then the lyrics sequence nested over everything
     tick('Building the main sequence');
@@ -979,9 +960,14 @@
     return best;
   }
 
+  // How far up a lyric of this many rows has to move to sit in the middle of the frame, as a fraction of the frame height.
+  function lyricLift(rows, frameH) {
+    var middle = BOX_TOP + (ROW_FIRST + (rows - 1) * ROW_PITCH / 2) * settings.size / (frameH || 1080);
+    return middle - 0.5;
+  }
   // Compares lyrics with their expected frames and sets their vertical position.
   // only: check just these expected entries (a build); omitted: every lyric of the current batch (the sliders).
-  async function positionLyrics(only) {
+  async function positionLyrics(only, frameH) {
     var rep = await host('report', { seqId: batch.lyricsId, full: true });
     var want = only || batch.expected, byTrack = {}, miss = 0, off = 0, newTrack = -1, positioned = 0;
     want.forEach(function (x) {
@@ -996,7 +982,7 @@
       if (!hit) { miss++; return; }
       if (Number(hit.s) !== x.s || Number(hit.e) !== x.e) off++;
       if (newTrack < 0) newTrack = hitTrack;
-      (byTrack[hitTrack] = byTrack[hitTrack] || []).push({ s: hit.s, y: 0.5 - (settings.lift + (x.rows - 1) * settings.perRow) / 100 });
+      (byTrack[hitTrack] = byTrack[hitTrack] || []).push({ s: hit.s, y: 0.5 - lyricLift(x.rows, frameH) });
     });
     var tracks = Object.keys(byTrack), k;
     for (k = 0; k < tracks.length; k++) {
@@ -1010,22 +996,23 @@
   }
 
   function showResult(check, info, selected) {
-    function line(ok, text) { return '<div class="line ' + (ok ? 'good' : 'bad') + '">' + ICON.check + '<span>' + esc(text) + '</span></div>'; }
-    function note(text) { return '<div class="line"><span style="width:16px"></span><span>' + esc(text) + '</span></div>'; }
-    var total = check.total, h = '<h3>Result</h3>';
-    h += line(check.exact === total, check.exact === total ? 'All ' + total + ' lyrics are on the exact frame' : check.exact + ' of ' + total + ' lyrics on the exact frame (' + check.off + ' off, ' + check.missing + ' missing)');
-    h += line(check.positioned === total - check.missing, check.positioned + ' lyrics positioned');
-    h += line(info.audioOnA1, info.audioOnA1 ? 'Audio is on A1 in the main sequence' : 'Audio did not land on A1 in the main sequence');
-    if (!info.nestCovers) h += line(false, 'The lyrics nest does not reach the end of the last song');
-    if (info.bgShort.length) h += line(false, 'Background shorter than the song: ' + info.bgShort.join(', '));
+    // Everything goes to the log; the card shows only what went wrong, and stays hidden after a clean build.
+    var total = check.total, bad = [];
+    function line(ok, text) { log('result: ' + (ok ? 'ok: ' : 'PROBLEM: ') + text); if (!ok) bad.push(text); }
+    function note(text) { log('result: ' + text); }
+    line(check.exact === total, check.exact === total ? 'All ' + total + ' lyrics are on the exact frame' : check.exact + ' of ' + total + ' lyrics on the exact frame (' + check.off + ' off, ' + check.missing + ' missing)');
+    line(check.positioned === total - check.missing, check.positioned + ' lyrics positioned');
+    line(info.audioOnA1, info.audioOnA1 ? 'Audio is on A1 in the main sequence' : 'Audio did not land on A1 in the main sequence');
+    if (!info.nestCovers) line(false, 'The lyrics nest does not reach the end of the last song');
+    if (info.bgShort.length) line(false, 'Background shorter than the song: ' + info.bgShort.join(', '));
     if (info.overlay) {
-      h += line(info.overlay.full, info.overlay.full ? 'Overlay added to every song' : 'Overlay does not cover every song');
-      if (!info.overlay.lookCopied) h += note('The overlay is not in your templates, so it was added with normal blending. Put it in the main template once, with the blend mode and opacity you want, and the next build will copy that look.');
+      line(info.overlay.full, info.overlay.full ? 'Overlay added to every song' : 'Overlay does not cover every song');
+      if (!info.overlay.lookCopied) note('The overlay is not in your templates, so it was added with normal blending. Put it in the main template once, with the blend mode and opacity you want, and the next build will copy that look.');
     }
-    if (info.split) h += note(info.split + ' long lyrics were split into two screens');
-    h += '<p class="hint" style="margin-top:8px">' + selected + ' new lyric graphics are selected in "' + esc(batch.lyricsName) + '". Apply your text style to them, then open "' + esc(batch.mainName) + '" to review.</p>';
-    $('result').innerHTML = h;
-    $('result').className = 'result card on';
+    if (info.split) note(info.split + ' long lyrics were split into two screens');
+    note(selected + ' new lyric graphics are selected in "' + batch.lyricsName + '"');
+    $('result').innerHTML = '<h3>Check these</h3>' + bad.map(function (t) { return '<div class="line bad">' + ICON.check + '<span>' + esc(t) + '</span></div>'; }).join('');
+    $('result').className = 'result card' + (bad.length ? ' on' : '');
   }
 
   // ---------- centering ----------
@@ -1382,15 +1369,15 @@
     var i = ev.target.dataset.i;
     if (i !== undefined) { songs[+i].on = ev.target.checked; renderSongs(); }
   };
-  ['lyricsTemplate', 'mainTemplate', 'bgTrack', 'lyricTrack', 'overlay', 'overlayTrack', 'bgBin', 'bgNext', 'gap', 'font', 'size', 'caps', 'maxWidth'].forEach(function (id) {
+  ['lyricsTemplate', 'mainTemplate', 'bgTrack', 'lyricTrack', 'overlay', 'overlayTrack', 'bgBin', 'bgNext', 'gap', 'font', 'size', 'caps'].forEach(function (id) {
     $(id).addEventListener('change', function () {
       readSettings();
       if (id === 'mainTemplate') renderSettings();
       if (id === 'bgBin') refreshBgCount();
       if (id === 'font') checkFont();
-      drawPreview();
+     
     });
-    $(id).addEventListener('input', function () { showSliders(); drawPreview(); });
+    $(id).addEventListener('input', function () { showSliders(); });
   });
   $('textEdit').onchange = function () { setTextLock(!$('textEdit').checked); };
   $('build').onclick = function (ev) {

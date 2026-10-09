@@ -112,6 +112,19 @@ A second panel in `LyricPanel2\` (own `install\`, `js\main.js`, `js\lrc.js`; `js
 
 **Known weak spots:** LRCLIB text is volunteers' (typos, extra intro or ad-lib lines, other line breaks than the user's own lyrics; the "i'm yours" entries have a line at about 1 s the user's lyrics lack); a well-formed entry with wrong times cannot be detected (one Rock Tunes entry ran 0.4 s early throughout); the mp3 must be the released cut (a rip with a longer intro fails the length check, which is the wanted behaviour); "Megara - Truco o trato" has entries of 4:00 and 4:03 although the user did not find it on the site.
 
+## Lyric centering and row width (found 2026-10-09 evening, changes NOT yet tested by the user)
+
+Read from the saved TikTok Melody.prproj (`AE.ADBE Text` component): a graphic upgraded from a caption is **box text**. In the Source Text flatbuffer the root table's field 2 / field 3 are the box width / height (1440 x 324 on 1920x1080 = 75% x 30% of the frame) and the component's own Position param (Param 2) is the box's top-left, normalised: `0.125:0.65` for an imported SRT (bottom zone, box 702..1026), `0.125:0.35` when the caption zone is centre. Field 1 / field 8 of the layer's style table are font size / tracking. The user's hand-made lyrics are point text (no fields 2 / 3).
+
+- The user's text style puts the text at the TOP of that box (that is the "gap at the bottom" and the "shifts up"). Which flatbuffer field holds the vertical alignment is not known: no middle-aligned sample was in the file.
+- Premiere wraps any row wider than the box. The 3-row lyric: Max row width was 95% (1824 px) and the style was size 75 while the panel setting said 70. Both panels now cap the row width at `BOX_W` = 75% (slider 40-75).
+- Position: `lyricLift(rows, frameH)` replaces the old `lift` / `perRow` settings (which ignored the font size and left lyrics 20-40 px too high): middle of the text = box top + (`ROW_FIRST` 0.31 + (rows-1) x `ROW_PITCH` 1.2 / 2) x font size, calibrated from two screenshots of Bakso Sapi at 70 and 75 (about +-3 px); `ROW_FIRST` is font-dependent and unchecked for other fonts.
+- Exact route, proposed to the user and not answered yet: set the style's vertical alignment to middle (Essential Graphics, then redefine the style). If a style carries that, every lyric is centered in the box whatever its rows or font, and the lift becomes the constant 0.30 (box middle 864 -> 540). Then replace `lyricLift` by that constant.
+- The panel's Size setting must equal the style's real size, or both wrapping and centering are off.
+- v2: the done fades button now reads "Redo fades" (no tick), still green.
+- **Confirmed by the user's screenshots at 4:49 PM (TikTok Melody, 97 lyrics, Bakso Sapi 70):** a 1-row and a 2-row lyric both sit within about 2 px of the frame middle, and the earlier 3-row lyric is 2 rows. The style-vertical-middle idea was not tried and is not needed for this font.
+- Asked for after that and written in both panels, NOT yet seen by the user: the Max row width slider is gone (rows always wrap at `BOX_W`; `maxWidth` in old settings files is ignored); the Build tab's Result card is hidden after a clean build, every result line goes to the log (`result: ok / PROBLEM`), and the card ("Check these") appears only with the failed lines; the tick box of an IN BATCH song is hidden; the frame preview and its explanation text are removed from the Lyric text card (only Font, Size, All caps and the Edit lock remain; mentions of the preview and the row-width slider elsewhere in this file are out of date). User's rule: keep the panel clean, show text only when something is wrong.
+
 ## Verified facts about Premiere 23.3 scripting
 
 - Captions to graphics has no API. It works by posting `WM_COMMAND` with the native menu item id (looked up by name each time). It crashes Premiere if fired while the Program Monitor has focus, and silently does nothing if the CEP panel has focus.
