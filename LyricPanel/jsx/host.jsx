@@ -520,6 +520,24 @@ function lpFindClipOfItem(seq, path) {
     return null;
 }
 
+// Finds a clip in a sequence that is itself a sequence (a nest) containing the given media file.
+function lpFindNestOfItem(seq, path) {
+    var t, i, k, tr, pi, inner;
+    for (t = 0; t < seq.videoTracks.numTracks; t++) {
+        tr = seq.videoTracks[t];
+        for (i = 0; i < tr.clips.numItems && i < 200; i++) {
+            pi = tr.clips[i].projectItem;
+            if (!pi) continue;
+            inner = null;
+            for (k = 0; k < app.project.sequences.numSequences && !inner; k++) {
+                try { if (app.project.sequences[k].projectItem.nodeId === pi.nodeId) inner = app.project.sequences[k]; } catch (e) {}
+            }
+            if (inner && inner.sequenceID !== seq.sequenceID && lpFindClipOfItem(inner, path)) return tr.clips[i];
+        }
+    }
+    return null;
+}
+
 // Places an overlay video over [startTicks, endTicks], repeating it if it is shorter than the song.
 // If the template sequence already uses this file, its scale, opacity and blend mode are copied.
 LPFN.placeOverlay = function (a) {
@@ -529,6 +547,13 @@ LPFN.placeOverlay = function (a) {
     var n;
     for (n = 0; n < a.tplNames.length && !ref; n++) {
         try { ref = lpFindClipOfItem(lpSeqByName(a.tplNames[n]), a.path); } catch (e) {}
+    }
+    // The template may hold the overlay inside a nest (a sequence used as a clip): then that nest is what gets placed,
+    // with the look of the template's nest clip.
+    var viaNest = '';
+    for (n = 0; n < a.tplNames.length && !ref; n++) {
+        try { ref = lpFindNestOfItem(lpSeqByName(a.tplNames[n]), a.path); } catch (e4) {}
+        if (ref) { item = ref.projectItem; viaNest = ref.name; }
     }
     if (!ref) { try { item.setScaleToFrameSize(); } catch (e2) { notes.push('scale: ' + e2); } }
     var track = seq.videoTracks[a.track], cursor = Number(a.startTicks), want = Number(a.endTicks), pieces = 0, r, got;
@@ -542,7 +567,7 @@ LPFN.placeOverlay = function (a) {
         if (got <= cursor) break;
         cursor = got;
     }
-    return { pieces: pieces, full: cursor >= want, lookCopied: !!ref, notes: notes };
+    return { pieces: pieces, full: cursor >= want, lookCopied: !!ref, viaNest: viaNest, notes: notes };
 };
 
 // Renders one frame of a sequence to a PNG (QE DOM). The panel reads the file to measure where the text sits.

@@ -19,3 +19,6 @@ Pipeline Tests/compare.json
 .claude/launch.json
 __pycache__/
 *.pyc
+
+LyricPanel2/_tmp/*
+!LyricPanel2/_tmp/check.html

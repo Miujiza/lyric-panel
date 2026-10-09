@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.lyric.panel" ExtensionBundleVersion="0.1.0"
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.lyric.panel" ExtensionBundleVersion="1.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
-    <Extension Id="com.lyric.panel.main" Version="0.1.0"/>
+    <Extension Id="com.lyric.panel.main" Version="1.0.0"/>
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
@@ -30,7 +30,7 @@
         </Lifecycle>
         <UI>
           <Type>Panel</Type>
-          <Menu>Lyric Panel</Menu>
+          <Menu>Lyric Panel v1</Menu>
           <Geometry>
             <Size>
               <Height>500</Height>

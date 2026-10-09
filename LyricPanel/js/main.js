@@ -374,22 +374,30 @@
   }
   function loadFontList() {
     var keys = ['HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts', 'HKCU\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts'];
-    var names = {}, left = keys.length;
+    var names = {}, left = keys.length + 1;
+    function finish() {
+      if (--left !== 0) return;
+      fontNames = Object.keys(names).filter(function (n) { return fontReady(n, 100); }).sort(natural);
+      var cur = $('font').value;
+      fillFonts();
+      if (cur) $('font').value = cur;
+      checkFont(); drawPreview();
+    }
+    // the registry lists a font by its file's label, which is not always the name programs use ("BaksoSapi" for
+    // "Bakso Sapi"), so Windows is also asked for the real family names
+    cp.execFile('powershell', ['-NoProfile', '-Command', 'Add-Type -AssemblyName System.Drawing; (New-Object System.Drawing.Text.InstalledFontCollection).Families | ForEach-Object { $_.Name }'], { maxBuffer: 8 * 1024 * 1024 }, function (err, out) {
+      (out || '').split(/\r?\n/).forEach(function (l) { if (l.trim()) names[l.trim()] = 1; });
+      finish();
+    });
     keys.forEach(function (k) {
       cp.execFile('reg', ['query', k], { maxBuffer: 8 * 1024 * 1024 }, function (err, out) {
         (out || '').split(/\r?\n/).forEach(function (l) {
           var m = /^\s{2,}(.+?)\s{2,}REG_SZ/.exec(l);
           if (!m) return;
           var n = m[1].replace(/\s*\((TrueType|OpenType|All res)\)\s*$/i, '').replace(/(\s+(Bold|Italic|Regular|Light|Medium|Semibold|Black|Thin|Oblique))+$/i, '');
-          n.split(' & ').forEach(function (x) { names[x.trim()] = 1; });
+          n.split(' & ').forEach(function (x) { names[x.trim()] = 1; names[x.trim().replace(/([a-z])([A-Z])/g, '$1 $2')] = 1; });
         });
-        if (--left === 0) {
-          fontNames = Object.keys(names).filter(function (n) { return fontReady(n, 100); }).sort(natural);
-          var cur = $('font').value;
-          fillFonts();
-          if (cur) $('font').value = cur;
-          checkFont(); drawPreview();
-        }
+        finish();
       });
     });
   }
@@ -778,6 +786,12 @@
   function fail(msg) { return new Error(msg); }
 
   async function build() {
+    // Lyric Panel v2 shares the settings and batch files and may have built since this panel read them
+    try {
+      var disk = JSON.parse(fs.readFileSync(settingsFile(), 'utf8'));
+      if (typeof disk.bgNext === 'number' && (parseInt($('bgNext').value, 10) || 1) - 1 === settings.bgNext) { settings.bgNext = disk.bgNext; $('bgNext').value = disk.bgNext + 1; }
+    } catch (e) {}
+    loadBatches();
     readSettings();
     project = await host('info');
     syncBatches();
@@ -1069,7 +1083,7 @@
   // Renders one sample lyric per row count from the lyrics sequence, measures where it sits, and shifts
   // every lyric with that row count so it lands in the middle of the frame. Works for any font or style.
   async function centerLyrics() {
-    project = await host('info'); syncBatches();
+    loadBatches(); project = await host('info'); syncBatches();
     batch = targetBatch();
     if (!batch) throw fail('Nothing to center yet. Build first.');
     if (!batch.expected.length) throw fail('This batch was not built by the panel in this project, so its lyrics are unknown.');
@@ -1170,6 +1184,7 @@
   // One song at a time: in/out on the main sequence, export to "<Song>.part.mp4", rename when Premiere has finished.
   // A song only counts as exported once it has its final name, so after a crash the unfinished one is simply done again.
   async function exportAll() {
+    loadBatches(); batch = targetBatch();
     if (!batch) throw fail('Build a batch first.');
     var dir = exportDir(), preset = $('exportPreset').value, done = 0, stopped = false, i, s, part, fin, r;
     var todo = batch.songs.filter(function (x) { return exOn[x.name]; });
@@ -1283,7 +1298,7 @@
   // Writes one SRT per song from the lyrics as they now are on the timeline, into the folder chosen on the Export tab.
   // The SRTs in the song folders are never touched.
   async function saveSrts() {
-    project = await host('info'); syncBatches();
+    loadBatches(); project = await host('info'); syncBatches();
     batch = targetBatch();
     if (!batch) throw fail('Build a batch first.');
     exStatus('Saving the project', 0.1);
@@ -1326,7 +1341,7 @@
   // from each lyric's real start and end. Running it again replaces the fades (do that after trimming a lyric).
   var FADE_FRAMES = 6;
   async function addFades() {
-    project = await host('info'); syncBatches();
+    loadBatches(); project = await host('info'); syncBatches();
     batch = targetBatch();
     if (!batch) throw fail('Build a batch first.');
     var done = 0, skipped = 0, total = 0, from = 0, notes = [], r;

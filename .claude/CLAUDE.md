@@ -1,6 +1,19 @@
-# Lyric Panel: handoff (rewritten 2026-10-08)
+# Lyric Panel: handoff (rewritten 2026-10-08, v2 added 2026-10-09)
 
-Read this first. It replaces the chats that built the panel and tested the lyric timing.
+Read this first. It replaces the chats that built the panels and tested the lyric timing.
+
+## Start here: two panels (state at the end of 2026-10-09)
+
+There are now TWO separate panels in Premiere's Window > Extensions menu. Always check which one the user means.
+
+| | **Lyric Panel v1** | **Lyric Panel v2** |
+|---|---|---|
+| Code | `LyricPanel\` | `LyricPanel2\` |
+| Where lyrics and timing come from | the user's lyrics.txt + three Whisper runs on this PC (about 30 min per song) | lrclib.net: text and line times downloaded in seconds |
+| Songs folder | one sub-folder per song | flat: mp3 files directly in the folder, SRT next to each |
+| Status | confirmed working (2026-10-08) | fetch, build and fades confirmed by the user on 2026-10-09 (TikTok Melody, 3 songs); the last round of changes is untested (see the v2 section) |
+
+The intended workflow: v2 first for a folder of mp3s; whatever LRCLIB does not have is moved to `Not found\` inside that folder and goes through v1. Both panels share the settings and add to the same two sequences. Sections below: shared facts, then "How the panel works" (= v1), then the v2 section.
 
 ## Who and what
 
@@ -29,20 +42,26 @@ C:\Users\HP\Downloads\AI\Lyric Test\
                         pipeline.py = the old single-run script, unused, kept as the fallback. The .sh / qa.py files are old helpers.
     _tmp\               args/result json for each host call, panel_log.txt, check.html (browser preview stub),
                         backups main.before-*.js / host.before-*.jsx from 2026-10-08 (safe to delete once things are stable)
+  LyricPanel2\          Lyric Panel v2 (see its section): install\, js\main.js, js\lrc.js, jsx\host.jsx, bin\, _tmp\ (own log and check.html)
   .git, .gitignore      version history; pushed to the private GitHub repo https://github.com/Miujiza/lyric-panel (see "Working notes")
 C:\Users\HP\Downloads\Lyrics\<Channel>\    the song folders (the user moved them here on 2026-10-08):
                         <Song>\<Song>.mp3, <Song>.srt, lyrics.txt, vocals.wav, words.json, runs\, logs
 C:\Users\HP\Documents\Lyric Library\       SRTs saved from the timeline after the user's corrections
                         Pipeline Tests\   the timing benchmark, moved here by the user (see "Lyric timing accuracy")
+                        LRCLIB Test\      the Python test scripts and SRTs from 2026-10-09 that led to v2 (lrclib_time.py = three runs guided by
+                                          LRCLIB, --direct = LRCLIB times as they are, lrclib_scaled.py = sped-up song from the original's entry,
+                                          run_three.py, combine_lrclib.py, out\). Not in git (lyric text). Not used by either panel.
 ```
 
-The installed loader hard-codes `DEV = "C:/Users/HP/Downloads/AI/Lyric Test/LyricPanel"`. Editing `js/main.js` or `jsx/host.jsx` needs only closing and reopening the panel (Window > Extensions > Lyric Panel); a manifest change needs a Premiere restart.
+The installed loaders hard-code `DEV = "C:/Users/HP/Downloads/AI/Lyric Test/LyricPanel"` (v1) and `.../LyricPanel2` (v2). Editing `js/main.js` or `jsx/host.jsx` needs only closing and reopening the panel (Window > Extensions > Lyric Panel); a manifest change needs a Premiere restart.
 
 Panel data: `%APPDATA%\LyricPanel\` (`<Project>.json` settings, `<Project>.batches.json`, temp combined SRTs). `Rock Tunes.json` and `Rock Tunes_1.json` still point at the old songs folder (`Lyric Test\Rock Tunes`, which no longer exists): the user just picks the folder again.
 
 Settings are per project file. A project with no settings file borrows from a same-channel file (`Rock Tunes_1` <-> `Rock Tunes`, trailing `_N` ignored). A channel with none starts with blank lyric font/size (`textSet` false) and Build refuses until they are filled in, so one channel's font is never used to wrap another's lyrics. The Lyric text card is locked once set, with an Edit checkbox to unlock; the font is a dropdown of installed Windows fonts; a small frame preview shows the max row width with a sample line wrapped the way a build would.
 
-## How the panel works (current code)
+## How the panel works (Lyric Panel v1; v2 shares everything from Build step 3 on, and the Settings and Export tabs)
+
+Changes made to v1 on 2026-10-09, none of them tested by the user in Premiere yet: menu name "Lyric Panel v1" (manifest); Build / Add fades / Save SRTs / Export re-read the shared batch file first, and Build re-reads `bgNext` (so v1 and v2 can add to each other's batch); the font dropdown also takes the real family names from Windows (PowerShell `InstalledFontCollection`), because the registry lists some fonts by file label ("BaksoSapi" for "Bakso Sapi"); `LPFN.placeOverlay` handles an overlay that sits inside a nest in the template (see v2 section). `git diff v1.0 -- LyricPanel` shows exactly these.
 
 **Build tab**
 
@@ -64,6 +83,34 @@ Settings are per project file. A project with no settings file borrows from a sa
 - **Export**: `sequence.exportAsMediaDirect(out, preset, 1)` straight from Premiere, one ticked song after another, written as `<Song>.part.mp4` and renamed when done; songs whose mp4 exists show EXPORTED. Save folder defaults to `Documents\<Channel>\Videos`. One song confirmed by the user on 2026-10-07.
 
 Unwired code still in the files: `centerLyrics` / `LPFN.exportFrame` (failed in Premiere: "Premiere did not write the test frame"), `LPFN.playhead`, `setPlayhead`, `addMarkers`, `moveLyricStart` (from the removed review tools; all four worked in Premiere).
+
+## Lyric Panel v2 (LRCLIB), built 2026-10-09
+
+A second panel in `LyricPanel2\` (own `install\`, `js\main.js`, `js\lrc.js`; `jsx\host.jsx` and `bin\` are copies of v1's and must be kept identical to v1's), installed as `%APPDATA%\Adobe\CEP\extensions\LyricPanel2` (bundle id `com.lyric.panel2`, menu "Lyric Panel v2"). It was generated from v1's main.js with the whole "song folder" part (tidy, Demucs, Whisper, lyrics.txt, language detection) replaced by an LRCLIB block; from Build step 3 onward, and on the Settings and Export tabs, the code is v1's. It needs no Python. git tag `v1.0` = v1 before v2 existed.
+
+**Why it exists (measured 2026-10-09):** lrclib.net is a free, key-less, volunteer-made database of line-timed lyrics. All 25 songs of Rock Tunes and Rock Vivo were on it with the right length. On the 16-song answer key, LRCLIB line times used as they are gave 3 lyrics more than 1 s off (v1's three runs: 15) and 69 of the 81 moved lyrics within 0.3 s (v1: 54); the run candidate nearest to the LRCLIB time gave 1 and 64. The user then approved three test SRTs in Premiere (English guided, Spanish direct, sped-up scaled from the original) and asked for the plugin. Coverage is thinner for Spanish rock and for sped-up / slowed / live versions: each version is just a separate upload, present only if someone made it.
+
+**Shared with v1 (user's decision):** the data folder `%APPDATA%\LyricPanel` (same per-project settings file; v2 keeps its own folder in `songsDir2`) and the two sequences `Lyric Panel Lyrics` / `Lyric Panel Main`. Both panels re-read the batch file before Build / Add fades / Save SRTs / Export and `bgNext` before Build.
+
+**Build tab flow**
+1. Folder layout is flat: `<Artist - Title>.mp3` directly in the picked folder, `<same name>.srt` beside it once fetched. Sub-folders are ignored. A file with no " - " in its name gets a red chip and is left alone.
+2. Scan, then every mp3 without an SRT is looked up, one after another (`lookup`): the mp3's length is measured by decoding it in the panel (`decodeAudioData`; ffprobe only as fallback), then three searches (`/api/search` by track + first artist, by full title, by free text); if nothing matches, the name is tried as `Title - Artist`. LRCLIB answers 503 now and then: each request retries after 1.5 / 3 / 6 s. Results are cached while the panel is open; the refresh button clears the cache and asks again.
+3. Chips: ON LRCLIB, ON LRCLIB (STRETCHED), LYRICS ONLY, NOT FOUND (hover shows why, e.g. the lengths LRCLIB has), NO CONNECTION, READY, IN BATCH, CHECKING.
+4. ONE main button, bottom right (`nextStep`): "Checking LRCLIB" (disabled) -> "Fetch SRTs" when a found song is ticked -> `Move to "Not found"` when nothing is fetchable but something is missing -> "Build". The yellow notice above the list only informs. Found songs are ticked automatically; only ticked ones are fetched.
+5. Fetch (`fetchSrts`): writes the SRT next to each ticked found song (flag `wx`, never overwrites) and moves every NOT FOUND / LYRICS ONLY mp3 into `Not found\`; a LYRICS ONLY song also gets its untimed lyrics as `<name>.txt` there, which v1's "Sort into folders" turns into lyrics.txt. Songs with NO CONNECTION are never moved.
+6. Build: v1's code unchanged.
+
+**Match rule (`LRC.decide` in lrc.js):** same artist (any one artist in common after splitting on , & x feat y con and), same title, same version words, length within 2 s of the mp3, at least 3 timed lines; the nearest length wins. Titles are compared without capitals, accents and punctuation (`analyse`): version words (live / en vivo / directo, remix, sped up / nightcore, slowed / reverb, acoustic, instrumental, demo, cover) are read only from brackets or a " - " tail (so "Live Fast Die Numb" is not a live song) and must agree on both sides; remaster, feat, year, version, edit and similar are ignored; other bracket text is part of the title but a title also matches without it. A live mp3 also accepts an entry whose ALBUM says live. A sped-up or slowed mp3 with no entry of its own uses the normal version: times x (mp3 length / original length), original length = the most common length among the uploads, preferring lengths that are not whole seconds (those were read from real files). Same-title entries of another length are never used: that is what keeps same-named different songs out (the user's example: several "Lentas Nubes de Fuego" entries of different lengths).
+
+**LRC -> SRT (`LRC.toCues`):** v1's caption rules (start 6 frames before the line, two lines of at most 46 characters share a screen if the gap is 2 s or less, a lyric ends 11 frames before the next, holds at most 4 s into a break, last one +1.4 s). LRCLIB has only line starts, so a line's sung end is LRCLIB's own empty end mark when there is one (then the lyric goes 0.5 s later), else a guess: words x the song's own seconds-per-word (the quicker third of "seconds to next line / words", 0.25 to 1.5), capped at the next line. With that guess the Spanish test song came out as 13 two-row screens like the approved SRT; with a fixed rate it was 24 single rows. Lines are cleaned like v1's lyrics (one-word ad-libs in brackets dropped, an ad-lib-only line dropped). Output is frame-snapped like v1's captions.srt.
+
+**Export tab additions (v2 only):** after a successful run Add fades / Save SRTs turn green and read "Fades added" / "SRTs saved" (`renderActions`); the state is stored in the batch record (`fadesFor` / `srtsFor` = song count:lyric count) so a build that adds songs resets it. They stay clickable (fades must be redone after a trim). All action buttons are disabled while anything runs.
+
+**Overlay inside a nest (both panels' host.jsx, `lpFindNestOfItem`):** if the chosen overlay video is not directly in a template but a nest in the template contains it (the user's TikTok Melody template has "Dust (Nest)"), that nest is placed over each song with the nest clip's motion, opacity and blend mode. Before this the build said the overlay was not in the templates and used normal blending.
+
+**What the user has confirmed in Premiere (2026-10-09, TikTok Melody, 3 songs):** scan and chips, Fetch SRTs, the move to Not found, Build (93 lyrics, all on the exact frame), Add fades. **Written after that test and NOT yet seen by the user:** the single main button and automatic ticks, the green done-state, the overlay-nest fix, the Bakso Sapi font fix (Windows does report "Bakso Sapi"; the dropdown was not seen).
+
+**Known weak spots:** LRCLIB text is volunteers' (typos, extra intro or ad-lib lines, other line breaks than the user's own lyrics; the "i'm yours" entries have a line at about 1 s the user's lyrics lack); a well-formed entry with wrong times cannot be detected (one Rock Tunes entry ran 0.4 s early throughout); the mp3 must be the released cut (a rip with a longer intro fails the length check, which is the wanted behaviour); "Megara - Truco o trato" has entries of 4:00 and 4:03 although the user did not find it on the site.
 
 ## Verified facts about Premiere 23.3 scripting
 
@@ -92,6 +139,8 @@ Unwired code still in the files: `centerLyrics` / `LPFN.exportFrame` (failed in 
 - Save SRTs goes to a folder they pick; the SRTs in the song folders must stay untouched.
 - Export: one click exports every ticked song straight from Premiere.
 - UI: dark, compact, tabbed; fields are browse buttons and dropdowns, not typed paths.
+- Two panels (2026-10-09): the old one is "Lyric Panel v1", the LRCLIB one "Lyric Panel v2"; they share settings and the two sequences. In v2, songs LRCLIB does not have are moved automatically to a `Not found` sub-folder; the main folder holds only mp3 + SRT pairs. Live songs need a live entry or go to Not found. Sped-up / slowed songs without their own entry use the original's timing, stretched.
+- Buttons (2026-10-09): one main button per tab that is "whatever has to be done next", not two buttons for two steps; a button that has done its job must look done and not invite a second click.
 - When testing something new and slow, try it on ONE song first and review it with them before running more. Do not edit the panel files when they asked for a test version elsewhere (they stopped an edit once for this).
 
 ## Lyric timing accuracy (work of 2026-10-07 and 2026-10-08, finished for now)
@@ -117,6 +166,16 @@ On the first fresh song timed with the three-run method (Dance Pilot, 2026-10-08
 
 ## Not done yet (rough priority)
 
+v2 first (the user is actively testing it):
+- a. Get the user's verdict on the 2026-10-09 last round (single main button, green done-state on Add fades / Save SRTs, overlay nest). Open question put to the user: should the green buttons lock completely with a "Redo" tick box.
+- b. v2 lyric END times are estimated and were not reviewed by the user on their own; ask how lyrics disappear before instrumental breaks.
+- c. Stretched (sped-up / slowed) songs in the panel use the length ratio only; the Python test fitted the speed against a Whisper run and was approved on one song. Not verified in the panel.
+- d. A line where LRCLIB has an extra first word, extra intro / ad-lib lines in LRCLIB text, and wrong-but-plausible entries are not handled.
+- e. Not tested at all in v2: Save SRTs, Export, a second build added to an existing batch, v1 and v2 building into the same batch, Rock Vivo / Brit Tunes (video backgrounds).
+- f. Commit: everything up to the end of 2026-10-09 is committed and pushed (see git log); commit again after the next confirmed round.
+
+v1 and general:
+
 0. Set up and test the other channels: Dance Pilot was built once on 2026-10-08 (font Titan One); a video-background channel (Rock Vivo, Brit Tunes) has not been built with the panel yet.
 1. Automatic centering needs a new approach (frame export failed).
 2. Written but never confirmed by the user: Stop / Continue timing after an interruption with the three-run script, UNFINISHED state, language detection on a mixed-language song, export interruption recovery, exporting more than one song in a row.
@@ -130,9 +189,9 @@ On the first fresh song timed with the three-run method (Dance Pilot, 2026-10-08
 
 - Git (set up 2026-10-08): the project folder is a git repo, branch `main`, remote `origin` = the user's private GitHub repo `Miujiza/lyric-panel`; sign-in is stored by Git Credential Manager, `gh` is not installed. The user does not run git: commit and push at the end of a session once something is confirmed working, instead of making `*.before-*` copies. `core.autocrlf` is off so files are never altered. Never add audio, song folders, anything containing lyric text, or `_tmp` logs (see `.gitignore`).
 
-- No Node: to check `main.js`, serve `LyricPanel\` with `python -m http.server` through a temporary `.claude\launch.json` + the Browser pane's preview_start, open `/_tmp/check.html` (fake `req`, `cep`, `__adobe_cep__`) and read `window.__errors`; delete the launch.json afterwards. Opening the file directly only gives a static snapshot.
+- No Node: to check `main.js`, serve `LyricPanel\` (or `LyricPanel2\`) with `python -m http.server` through a temporary `.claude\launch.json` (`runtimeExecutable` = the python.exe path, args `-m http.server <port> --directory LyricPanel2`) + the Browser pane's preview_start, open `/_tmp/check.html` (fake `req`, `cep`, `__adobe_cep__`) and read `window.__errors`; delete the launch.json afterwards. The v2 stub makes real LRCLIB requests (about 40 s for its 12 fake songs) and its fake file system records moves in `window.__moved`; `LRC.toSrt(...)` can be called directly from the page to test a conversion. Opening the file directly only gives a static snapshot.
 - Bash heredocs on this machine eat backslashes. For multi-line patches, write a `.py` file with the Write tool and run it.
-- Read `LyricPanel\_tmp\panel_log.txt` after each user test instead of asking them to paste logs. To check what really happened on the timeline, read the saved `.prproj` (the user must have saved after the action; compare file time with the log time).
+- Read `LyricPanel\_tmp\panel_log.txt` (v1) or `LyricPanel2\_tmp\panel_log.txt` (v2; read it as UTF-8) after each user test instead of asking them to paste logs. To check what really happened on the timeline, read the saved `.prproj` (the user must have saved after the action; compare file time with the log time).
 - The user tests by hand in Premiere: one change set per round, tell them exactly what to click, ask for a screenshot. They must not touch Premiere during a build.
 - Long runs: start them in the background; a foreground `sleep` is blocked. Stopping a background task does not always kill its python children: check with `Get-CimInstance Win32_Process` and stop leftovers.
 - Do not print song lyrics in chat (earlier sessions were flagged for it).
