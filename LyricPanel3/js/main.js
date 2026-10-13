@@ -501,8 +501,9 @@
   var checks = {};              // audio path -> what LRCLIB has for it, kept while the panel is open
   var checkRun = 0, checking = null;   // checking: { done, total } while the folder is being looked up
   var audioCtx = null;
-  // Where each SRT in a songs folder came from: 'lrclib', 'stretched' (LRCLIB timing of the normal-speed version) or
-  // 'whisper' (timed on this PC). The last two are the ones to check: they are built last and get their own colour.
+  // Where each SRT in a songs folder came from: 'lrclib', 'differ' (LRCLIB, but its uploads disagree on the line times),
+  // 'stretched' (LRCLIB timing of the normal-speed version) or
+  // 'whisper' (timed on this PC). The last three are the ones to check: they are built last and get their own colour.
   var SOURCES = path.join(DATA, 'sources.json'), sources = {};
   // Which half of "A - B" is the artist: remembered per mp3 when LRCLIB finds the song (1 = the name is "Title - Artist").
   var ORDERS = path.join(DATA, 'names.json'), orders = {};
@@ -518,7 +519,7 @@
     sources[fwd(srt).toLowerCase()] = kind;
     try { fs.writeFileSync(SOURCES, JSON.stringify(sources), 'utf8'); } catch (e) { log('could not save sources: ' + e); }
   }
-  function toCheck(s) { return s.src === 'whisper' || s.src === 'stretched'; }
+  function toCheck(s) { return s.src === 'whisper' || s.src === 'stretched' || s.src === 'differ'; }
 
   // The exact length of an audio file: it is decoded here, so no outside program is needed.
   function audioSeconds(file) {
@@ -700,7 +701,7 @@
         var srt = LRC.toSrt(s.check.entry.syncedLyrics, s.check.scale, s.check.seconds), out = root + '/' + s.name + '.srt';
         if (srt.count < 3) throw new Error('the LRCLIB entry has almost no lyrics');
         fs.writeFileSync(out, srt.text, { encoding: 'utf8', flag: 'wx' });
-        setSource(out, s.check.state === 'scaled' ? 'stretched' : 'lrclib');
+        setSource(out, s.check.state === 'scaled' ? 'stretched' : s.check.differ ? 'differ' : 'lrclib');
         got++;
         log('fetch: ' + s.name + ': ' + srt.count + ' lyrics from entry ' + s.check.entry.id + (s.check.scale !== 1 ? ' stretched x' + s.check.scale.toFixed(3) : ''));
       } catch (e) { failed.push(s.name); log('ERROR fetch: ' + s.name + ': ' + e.message); }
@@ -968,6 +969,7 @@
         : s.ready ? '<span class="chip ok"' + (toCheck(s) ? ' title="Its lyrics get the check colour on the timeline"' : '') + '>READY</span>'
         : s.problem ? '<span class="chip bad">' + esc(s.problem.toUpperCase()) + '</span>'
         : !c ? '<span class="chip in">' + (checking ? 'CHECKING' : 'NOT CHECKED') + '</span>'
+        : c.state === 'found' && c.differ ? '<span class="chip warn" title="The uploads on LRCLIB disagree on the line times. The timing in the middle of them is used: check it.">ON LRCLIB (UPLOADS DIFFER)</span>'
         : c.state === 'found' ? '<span class="chip ok" title="Same title, artist and length on LRCLIB">ON LRCLIB</span>'
         : c.state === 'scaled' ? '<span class="chip warn" title="LRCLIB only has the normal-speed version. Its timing is stretched to fit this one: check it.">STRETCHED</span>'
         : c.state === 'error' ? '<span class="chip bad"' + why + '>NO CONNECTION</span>'

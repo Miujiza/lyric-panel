@@ -156,7 +156,7 @@ window.LRC = (function () {
     var synced = near.filter(function (e) { return e.syncedLyrics && timedLines(e.syncedLyrics) >= 3; });
     if (synced.length) {
       var best = agreed(synced), found = { state: 'found', entry: best, scale: 1, others: synced.length - 1 };
-      if (best !== synced[0]) found.why = 'The uploads disagree on the line times: entry ' + synced[0].id + ' has the nearest length but stands apart from the others';
+      if (best !== synced[0]) found.differ = true, found.why = 'The uploads disagree on the line times: entry ' + synced[0].id + ' has the nearest length but stands apart from the others';
       return found;
     }
 
