@@ -501,6 +501,14 @@
   // Where each SRT in a songs folder came from: 'lrclib', 'stretched' (LRCLIB timing of the normal-speed version) or
   // 'whisper' (timed on this PC). The last two are the ones to check: they are built last and get their own colour.
   var SOURCES = path.join(DATA, 'sources.json'), sources = {};
+  // Which half of "A - B" is the artist: remembered per mp3 when LRCLIB finds the song (1 = the name is "Title - Artist").
+  var ORDERS = path.join(DATA, 'names.json'), orders = {};
+  function loadOrders() { try { orders = JSON.parse(fs.readFileSync(ORDERS, 'utf8')); } catch (e) { orders = {}; } }
+  function setOrder(audio, swapped) {
+    loadOrders();
+    orders[fwd(audio).toLowerCase()] = swapped ? 1 : 0;
+    try { fs.writeFileSync(ORDERS, JSON.stringify(orders), 'utf8'); } catch (e) {}
+  }
   function loadSources() { try { sources = JSON.parse(fs.readFileSync(SOURCES, 'utf8')); } catch (e) { sources = {}; } }
   function setSource(srt, kind) {
     loadSources();
@@ -576,7 +584,7 @@
       if (!info) break;
       var r = LRC.decide(info, seconds, await searchLrclib(info));
       if (!res || r.state !== 'notfound') res = r;
-      if (r.state !== 'notfound') break;
+      if (r.state !== 'notfound') { setOrder(s.audio, n === 1); break; }
     }
     res = res || { state: 'notfound', why: 'The file name is not "Artist - Title"' };
     res.seconds = seconds;
@@ -1257,11 +1265,39 @@
   };
   var TITLE_MIN = 48;           // frames (2 s) a title must be able to stay, or the song gets none
   function titleLook() { return TITLE_LOOKS[projectKey().replace(/[_ ]\d+$/, '')] || null; }
-  // The title card of "Artist - Title" as a PNG the size of the frame (a Buffer), or null when the name has no " - ".
+  // The artist and the title of a song for its title card, from the file name "Artist - Title"; null without " - ".
+  // Which half is the artist: what LRCLIB matched if it found the song, else the mp3's own tags, else the first half.
+  // A featured artist written after the title moves to the artist line, and the title loses "(Sped Up)", "[Live]" etc.
+  async function songNames(s) {
+    var i = s.name.indexOf(' - ');
+    if (i < 1) return null;
+    var artist = s.name.slice(0, i).trim(), title = s.name.slice(i + 3).trim(), swapped, how = 'LRCLIB';
+    if (!artist || !title) return null;
+    loadOrders();
+    swapped = orders[fwd(s.audio).toLowerCase()];
+    if (swapped === undefined) {
+      swapped = 0; how = 'the mp3 tags';
+      try {
+        var r = await ffTool('ffprobe', ['-v', 'error', '-show_entries', 'format_tags=artist,title', '-of', 'json', s.audio]);
+        var tags = (JSON.parse(r.out).format || {}).tags || {}, tag = {};
+        Object.keys(tags).forEach(function (k) { tag[k.toLowerCase()] = String(tags[k]); });
+        var a = LRC.analyse(artist).core, b = LRC.analyse(title).core, t = tag.title ? LRC.analyse(tag.title).core : '';
+        if (t && t === a && t !== b) swapped = 1;
+        else if (!t && tag.artist && LRC.sameArtist(tag.artist, title) && !LRC.sameArtist(tag.artist, artist)) swapped = 1;
+      } catch (e) {}
+    }
+    if (swapped) { var x = artist; artist = title; title = x; log('titles: ' + s.name + ': read as "Title - Artist" (from ' + how + ')'); }
+    var ft = /^(.+?)\s*[(\[]?\s*\b(ft|feat|featuring)\b(\.?)\s+([^()\[\]]+)[)\]]?(.*)$/i.exec(title);
+    if (ft) {
+      title = (ft[1] + ' ' + ft[5].trim()).trim();
+      if (artist.toLowerCase().indexOf(ft[4].trim().toLowerCase()) < 0) artist = artist + ' ' + ft[2] + ft[3] + ' ' + ft[4].trim();
+    }
+    return { artist: artist, title: LRC.displayTitle(title) };
+  }
+  // The title card as a PNG the size of the frame (a Buffer).
   // The title is as large as fits maxW x maxH; the artist line keeps its size, and loses artists from the end if too wide.
-  function drawTitle(name, look, w, h) {
-    var m = /^(.*?) - (.*)$/.exec(name);
-    if (!m) return null;
+  function drawTitle(names, look, w, h) {
+    var m = [null, names.artist, names.title];
     var c = document.createElement('canvas'); c.width = w; c.height = h;
     var g = c.getContext('2d'), font = 'px "' + settings.font + '"';
     g.scale(w / 1920, w / 1920); g.textBaseline = 'alphabetic';
@@ -1369,13 +1405,14 @@
     // the title pictures
     var dir = fwd(path.join(DATA, 'titles', projectKey()));
     fs.mkdirSync(dir, { recursive: true });
-    picked.forEach(function (p) {
-      var png = drawTitle(p.name, look, tpl.w, tpl.h);
-      p.titlePng = '';
-      if (!png) { out.problems.push('No title for "' + p.name + '": the name is not "Artist - Title"'); return; }
-      p.titlePng = dir + '/' + p.name + '.png';
-      fs.writeFileSync(p.titlePng, png);
-    });
+    for (i = 0; i < picked.length; i++) {
+      var names = await songNames(picked[i]);
+      picked[i].titlePng = '';
+      if (!names) { out.problems.push('No title for "' + picked[i].name + '": the name is not "Artist - Title"'); continue; }
+      picked[i].titlePng = dir + '/' + picked[i].name + '.png';
+      fs.writeFileSync(picked[i].titlePng, drawTitle(names, look, tpl.w, tpl.h));
+      log('titles: ' + picked[i].name + ': card reads "' + names.title + '" / "' + names.artist + '"');
+    }
     var withTitle = picked.filter(function (p) { return p.titlePng; });
     if (withTitle.length) {
       var imp = await host('ensureImported', { paths: withTitle.map(function (p) { return p.titlePng; }), bin: NAME }, 300000);

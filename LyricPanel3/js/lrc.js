@@ -58,6 +58,16 @@ window.LRC = (function () {
     if (m) full = m[1];
     return { full: full, core: core, kinds: Object.keys(kinds).sort(), remix: remix.sort().join(' | ') };
   }
+  // The title as it goes on a title card: the song's own name, without what only describes the recording
+  // ("(Sped Up)", "[Live]", " - 2011 Remaster", a trailing "slowed"). Brackets that are part of the name stay.
+  function displayTitle(title) {
+    function describes(t) { return kindsOf(t).length > 0 || COSMETIC.test(norm(t)); }
+    var rest = String(title || '').replace(/[\(\[\{]([^\)\]\}]*)[\)\]\}]/g, function (m, inner) { return describes(inner) ? ' ' : m; });
+    var dash = rest.split(/\s+[-–—]\s+/);
+    if (dash.length > 1 && describes(dash.slice(1).join(' - '))) rest = dash[0];
+    rest = rest.replace(/\s+(sped up|speed up|nightcore|slowed down|slowed (?:and |n |\+ |& )?reverb|slowed)\s*$/i, '');
+    return rest.replace(/\s+/g, ' ').trim() || String(title || '').trim();
+  }
   function sameTitle(a, b) {
     if (!a.core || !b.core) return false;
     return a.full === b.full || a.core === b.core;
@@ -236,5 +246,5 @@ window.LRC = (function () {
     return { count: cues.length, text: cues.map(function (c, n) { return (n + 1) + '\n' + stamp(c.start) + ' --> ' + stamp(c.end) + '\n' + c.rows.join('\n') + '\n'; }).join('\n') };
   }
 
-  return { norm: norm, analyse: analyse, parseName: parseName, sameArtist: sameArtist, decide: decide, parseLrc: parseLrc, toCues: toCues, toSrt: toSrt, mmss: mmss };
+  return { norm: norm, analyse: analyse, displayTitle: displayTitle, parseName: parseName, sameArtist: sameArtist, decide: decide, parseLrc: parseLrc, toCues: toCues, toSrt: toSrt, mmss: mmss };
 })();
