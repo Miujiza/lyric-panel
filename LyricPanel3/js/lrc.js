@@ -5,7 +5,8 @@ window.LRC = (function () {
   // caption rules, the same numbers as v1's pipeline (combine.py)
   var LEAD = 6 * FR, GAP = 11 * FR, MAXHOLD = 4.0, TAIL = 1.4, ROW = 46, PAIR_GAP = 2.0;
   var MARK_HOLD = 0.5;          // LRCLIB marked the end of a line itself: the lyric goes this long after that mark
-  var LENGTH_TOL = 2.0;         // an entry is this recording only if its length is within this many seconds of the mp3
+  var AGREE = 0.3;              // two uploads have the same timing when their lines are this close (seconds)
+  var LENGTH_TOL = 2.0;        // an entry is this recording only if its length is within this many seconds of the mp3
   var HOMOGLYPHS = { 'е': 'e', 'о': 'o', 'а': 'a', 'с': 'c', 'р': 'p', 'х': 'x', 'і': 'i', 'у': 'y' };
 
   function plain(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, ''); }
@@ -103,6 +104,38 @@ window.LRC = (function () {
   function timedLines(synced) { return parseLrc(synced).filter(function (l) { return l.text; }).length; }
   function median(v) { v = v.slice().sort(function (x, y) { return x - y; }); return v.length ? (v[(v.length - 1) >> 1] + v[v.length >> 1]) / 2 : 0; }
 
+  // How far apart two uploads' line times are: the middle difference over lines with the same text, taken in order.
+  // -> seconds, or null when they share fewer than 5 lines (other line breaks: no comparison)
+  function timeGap(a, b) {
+    var d = [], j = 0, i, k;
+    for (i = 0; i < a.length; i++) {
+      for (k = j; k < b.length && b[k].t <= a[i].t + 10; k++) {
+        if (b[k].key === a[i].key && Math.abs(b[k].t - a[i].t) <= 10) { d.push(Math.abs(b[k].t - a[i].t)); j = k + 1; break; }
+      }
+    }
+    return d.length >= 5 ? median(d) : null;
+  }
+  // Uploads of one recording can disagree on the line times by seconds, and the one with the nearest length is not always right.
+  // list: timed entries, nearest length first. The nearest stays unless it stands apart from the timing the others sit closest to;
+  // then the nearest length among the uploads with that timing is taken. Each upload counts once.
+  function agreed(list) {
+    if (list.length < 3) return list[0];
+    var lines = list.map(function (e) {
+      return parseLrc(e.syncedLyrics).filter(function (l) { return l.text; }).map(function (l) { return { t: l.t, key: norm(l.text) }; });
+    });
+    var mid = -1, low = 0;
+    list.forEach(function (e, i) {
+      var sum = 0, n = 0;
+      list.forEach(function (o, j) { var g = i === j ? null : timeGap(lines[i], lines[j]); if (g !== null) { sum += Math.min(g, 5); n++; } });
+      if (n >= 2 && (mid < 0 || sum / n < low - 1e-9)) { mid = i; low = sum / n; }
+    });
+    if (mid <= 0) return list[0];
+    var first = timeGap(lines[0], lines[mid]);
+    if (first === null || first <= AGREE) return list[0];
+    for (var i = 1; i < mid; i++) { var g = timeGap(lines[i], lines[mid]); if (g !== null && g <= AGREE) return list[i]; }
+    return list[mid];
+  }
+
   // Decides what LRCLIB has for one song. entries: everything the searches returned. seconds: length of the mp3.
   // -> { state: 'found' | 'scaled' | 'lyricsonly' | 'notfound', entry, scale, plain, why }
   function decide(info, seconds, entries) {
@@ -121,7 +154,11 @@ window.LRC = (function () {
     var near = same.filter(function (e) { return e.duration && Math.abs(e.duration - seconds) <= LENGTH_TOL; });
     near.sort(function (x, y) { return Math.abs(x.duration - seconds) - Math.abs(y.duration - seconds); });
     var synced = near.filter(function (e) { return e.syncedLyrics && timedLines(e.syncedLyrics) >= 3; });
-    if (synced.length) return { state: 'found', entry: synced[0], scale: 1, others: synced.length - 1 };
+    if (synced.length) {
+      var best = agreed(synced), found = { state: 'found', entry: best, scale: 1, others: synced.length - 1 };
+      if (best !== synced[0]) found.why = 'The uploads disagree on the line times: entry ' + synced[0].id + ' has the nearest length but stands apart from the others';
+      return found;
+    }
 
     if (speed.length) {
       // no entry for this speed: the normal version's times, stretched by the two lengths
