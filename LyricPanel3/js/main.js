@@ -16,7 +16,7 @@
   var CAPTION_BIAS = 1;         // Premiere 23.3 puts an imported SRT cue one frame earlier than its time
   // A graphic made from a caption is a fixed text box (read from a saved project, 2026-10-09): 75% of the frame wide,
   // 30% high, its top at 65% of the frame height. Premiere wraps any row wider than the box by itself.
-  var BOX_W = 75, BOX_TOP = 0.65;
+  var BOX_W = 75, BOX_TOP = 0.65, BOX_H = 0.30;
   // With the text at the top of that box: middle of the first row of capitals = ROW_FIRST x font size below the
   // box top, and each further row adds ROW_PITCH x font size (measured on Bakso Sapi at 70 and 75).
   var ROW_FIRST = 0.31, ROW_PITCH = 1.2;
@@ -24,7 +24,7 @@
 
   var DEFAULTS = {
     lyricsTemplate: '', mainTemplate: '', bgTrack: 0, lyricTrack: 1, bgBin: 'Backgrounds', gap: 20,
-    font: 'DK Midnight Chalker', size: 115, caps: true,
+    font: 'DK Midnight Chalker', size: 115, caps: true, vAlign: 'top',
     lift: 19, perRow: 5.5, bgNext: 0, songsDir: '', songsDir2: '', overlay: '', overlayTrack: 2
   };
   var videoItems = [];          // video files in the project, for the overlay picker
@@ -194,6 +194,7 @@
         '<div id="textBody">' +
           row('Font', '<select id="font"></select><span class="badge" id="fontOk"></span>') +
           row('Size', '<input type="number" id="size" min="10" step="1"><span style="margin-left:10px">All caps</span><input type="checkbox" id="caps">') +
+          row('Vertical align', '<select id="vAlign" title="How your text style places the rows inside the text box: the three align buttons at the right of the Text section in Essential Graphics"><option value="top">Top (Premiere\'s default)</option><option value="middle">Middle</option></select>') +
         '</div>' +
       '</div>' +
     '</section>' +
@@ -328,7 +329,7 @@
   function setTextLock(locked) {
     $('textEdit').checked = !locked;
     $('textBody').className = locked ? 'locked' : '';
-    ['font', 'size', 'caps'].forEach(function (id) { $(id).disabled = locked; });
+    ['font', 'size', 'caps', 'vAlign'].forEach(function (id) { $(id).disabled = locked; });
   }
   async function refreshBgCount() {
     try {
@@ -368,6 +369,7 @@
     fillFonts();
     $('size').value = settings.textSet ? settings.size : '';
     $('caps').checked = !!settings.caps;
+    $('vAlign').value = settings.vAlign === 'middle' ? 'middle' : 'top';
     setTextLock(!!settings.textSet);
     showSliders(); checkFont();
     if (project) refreshBgCount();
@@ -386,6 +388,7 @@
     settings.size = parseFloat($('size').value) || 0;
     settings.textSet = !!(settings.font && settings.size);
     settings.caps = $('caps').checked;
+    settings.vAlign = $('vAlign').value;
     saveSettings();
   }
   function loadFontList() {
@@ -1581,6 +1584,9 @@
 
   // How far up a lyric of this many rows has to move to sit in the middle of the frame, as a fraction of the frame height.
   function lyricLift(rows, frameH) {
+    // a text style that aligns the rows to the middle of the box: the middle of the lyric is the middle of the box,
+    // whatever the font, the size and the number of rows (Rock Vivo's style, 2026-10-13)
+    if (settings.vAlign === 'middle') return BOX_TOP + BOX_H / 2 - 0.5;
     var middle = BOX_TOP + (ROW_FIRST + (rows - 1) * ROW_PITCH / 2) * settings.size / (frameH || 1080);
     return middle - 0.5;
   }
@@ -2074,7 +2080,7 @@
     var i = ev.target.dataset.i;
     if (i !== undefined) { songs[+i].on = ev.target.checked; renderSongs(); }
   };
-  ['lyricsTemplate', 'mainTemplate', 'bgTrack', 'lyricTrack', 'overlay', 'overlayTrack', 'bgBin', 'bgNext', 'gap', 'font', 'size', 'caps'].forEach(function (id) {
+  ['lyricsTemplate', 'mainTemplate', 'bgTrack', 'lyricTrack', 'overlay', 'overlayTrack', 'bgBin', 'bgNext', 'gap', 'font', 'size', 'caps', 'vAlign'].forEach(function (id) {
     $(id).addEventListener('change', function () {
       readSettings();
       if (id === 'mainTemplate') renderSettings();
