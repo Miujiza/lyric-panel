@@ -199,7 +199,7 @@
     '</section>' +
 
     '<section id="tab-export">' +
-      '<div class="row" style="margin-top:0"><label>Save videos to</label><div class="path" id="pickExport" title="Click to browse"><span id="exportPath"></span><i>' + ICON.folder + '</i></div></div>' +
+      '<div class="row" style="margin-top:0"><label>Save videos and thumbnails to</label><div class="path" id="pickExport" title="Click to browse"><span id="exportPath"></span><i>' + ICON.folder + '</i></div></div>' +
       row('Quality', '<select id="exportPreset"></select>') +
       '<div class="row"><label>Save SRTs to</label><div class="path" id="pickSrt" title="Click to browse"><span id="srtPath"></span><i>' + ICON.folder + '</i></div></div>' +
       '<div class="listhead"><b id="exportTitle">No batch built yet</b><span class="sp"></span>' +
@@ -1143,7 +1143,7 @@
     var measure = makeMeasure(), maxPx = tpl.w * BOX_W / 100;
     var lines = [], n = 0, added = [], split = 0, rewrapped = 0;
     picked.forEach(function (song) {
-      var prevEnd = 0; song.lyricCount = 0;
+      var prevEnd = 0; song.lyricCount = 0; song.firstLyric = undefined;
       parseSrt(song.srt).forEach(function (c) {
         var sf = Math.max(toFrame(c.start), prevEnd), ef = Math.min(toFrame(c.end), song.audioFrames);
         if (sf > song.audioFrames - 2) return;
@@ -1159,6 +1159,7 @@
           if (to > ef) to = ef;
           if (to - at < 2) return;
           n++; song.lyricCount++;
+          if (song.firstLyric === undefined) song.firstLyric = at;
           lines.push(n + '\r\n' + srtTime(song.startFrame + at) + ' --> ' + srtTime(song.startFrame + to) + '\r\n' + rows.join('\r\n') + '\r\n');
           added.push({ s: (song.startFrame + at) * F, e: (song.startFrame + to) * F, rows: rows.length });
           at = to;
@@ -1222,7 +1223,15 @@
     await host('clearTracks', { seqId: main.id, video: [settings.lyricTrack], audio: mrep.audio.map(idx) });
     var nest = await host('placeSequence', { seqId: main.id, nestId: lyr.id, track: settings.lyricTrack, audioTrack: 0, startTicks: 0 });
     log('nest placed: form ' + nest.form + ' audio ' + JSON.stringify(nest.audioBefore) + ' -> ' + JSON.stringify(nest.audioAfter));
+    // the template's lyrics clip may carry effects (a Drop Shadow over everything in the nest): the new nest gets them too
+    try {
+      var fx = await host('copyEffects', { seqId: main.id, tplName: settings.mainTemplate, track: settings.lyricTrack });
+      log('nest effects: ' + (fx.added.join(', ') || 'none') + (fx.notes.length ? ' [' + fx.notes.slice(0, 6).join('; ') + ']' : ''));
+    } catch (e) { log('nest effects: FAILED ' + e.message); }
     info.audioOnA1 = nest.audioAfter[0] > nest.audioBefore[0];
+    // logo, title and thumbnail of each new song; a failure here never undoes the build
+    try { info.titles = await addTitles(picked, lyr, main, check.newTrack, tpl); }
+    catch (e) { log('titles: FAILED ' + e.message); info.titles = { problems: ['Logos, titles and thumbnails were not finished: ' + e.message] }; }
     var lastNew = picked[picked.length - 1];
     info.nestCovers = Number(nest.end) >= (lastNew.startFrame + lastNew.audioFrames) * F;
 
@@ -1235,6 +1244,196 @@
     showResult(check, info, sel.selected);
     renderSongs();
     renderExport();
+  }
+
+  // ---------- logo, title and thumbnail ----------
+  // Each song starts with the channel's intro logo, then its title card until the first lyric, over the watermark
+  // that runs the whole song (all three as in the lyrics template). A song whose first lyric comes too early gets
+  // the logo alone, or nothing. Every song gets a thumbnail: a frame of the main sequence with its title on.
+  // Premiere cannot type into a title, so the title card is a picture drawn here in the channel font.
+  // How a channel's title looks (1920x1080): measured on the user's own thumbnails. Channels not listed get no titles yet.
+  var TITLE_LOOKS = {
+    'Dance Pilot': { sx: 0.9, sy: 1.2, artistSize: 97, maxW: 1780, maxH: 357, gap: 55, cx: 957, mid: 459, drift: 0.1, caps: true, titleColour: '#ffffff', artistColour: '#ffffff' }
+  };
+  var TITLE_MIN = 48;           // frames (2 s) a title must be able to stay, or the song gets none
+  function titleLook() { return TITLE_LOOKS[projectKey().replace(/[_ ]\d+$/, '')] || null; }
+  // The title card of "Artist - Title" as a PNG the size of the frame (a Buffer), or null when the name has no " - ".
+  // The title is as large as fits maxW x maxH; the artist line keeps its size, and loses artists from the end if too wide.
+  function drawTitle(name, look, w, h) {
+    var m = /^(.*?) - (.*)$/.exec(name);
+    if (!m) return null;
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var g = c.getContext('2d'), font = 'px "' + settings.font + '"';
+    g.scale(w / 1920, w / 1920); g.textBaseline = 'alphabetic';
+    function ink(text, size) {
+      g.font = size + font;
+      var t = g.measureText(text);
+      return { l: t.actualBoundingBoxLeft, a: t.actualBoundingBoxAscent, w: t.actualBoundingBoxLeft + t.actualBoundingBoxRight, h: t.actualBoundingBoxAscent + t.actualBoundingBoxDescent };
+    }
+    function put(text, size, top, colour) {
+      var i = ink(text, size);
+      g.save();
+      g.translate(look.cx - i.w * look.sx / 2, top); g.scale(look.sx, look.sy);
+      g.fillStyle = colour; g.fillText(text, i.l, i.a);
+      g.restore();
+      return i.h * look.sy;
+    }
+    function shown(t) { return look.caps ? t.toUpperCase() : t; }
+    var title = shown(m[2].trim()), parts = m[1].trim().split(/(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+and\s+)/i), artist;
+    for (;;) {
+      artist = shown(parts.join(''));
+      if (parts.length <= 1 || ink(artist, look.artistSize).w * look.sx <= look.maxW) break;
+      parts = parts.slice(0, -2);
+    }
+    var probe = ink(title, 400), size = Math.min(look.maxW / (probe.w * look.sx / 400), look.maxH / (probe.h * look.sy / 400));
+    var th = probe.h * look.sy * size / 400, top = look.mid + look.drift * th - th / 2;
+    put(title, size, top, look.titleColour);
+    put(artist, look.artistSize, top + th + look.gap, look.artistColour);
+    return Buffer.from(c.toDataURL('image/png').split(',')[1], 'base64');
+  }
+  function ffTool(name, args) {
+    return new Promise(function (resolve) {
+      var exe = 'C:/ffmpeg/bin/' + name + '.exe';
+      cp.execFile(fs.existsSync(exe) ? exe : name, args, { maxBuffer: 4 * 1024 * 1024 }, function (err, out) { resolve({ err: err, out: String(out || '') }); });
+    });
+  }
+  // true unless the file is known to be silent: a clip with sound would bring it into the lyrics sequence
+  async function hasSound(file) {
+    if (/\.(png|jpe?g|tiff?|psd|bmp|gif|webp)$/i.test(file)) return false;
+    var r = await ffTool('ffprobe', ['-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'csv=p=0', file]);
+    return !!r.err || !!r.out.trim();
+  }
+  async function waitFile(candidates, ms) {
+    var t0 = Date.now(), last = -1, i, size;
+    while (Date.now() - t0 < ms) {
+      for (i = 0; i < candidates.length; i++) {
+        try { size = fs.statSync(candidates[i]).size; } catch (e) { continue; }
+        if (size > 1000 && size === last) return candidates[i];
+        last = size;
+      }
+      await sleep(300);
+    }
+    return null;
+  }
+  // Saves one frame of the main sequence as a JPG. Premiere's own "export frame" is tried first; if it writes nothing,
+  // two frames are exported as a video (the export that is known to work) and the picture is taken from that.
+  var grabWay = '';
+  async function grabThumb(main, frame, outJpg) {
+    var fr = frame % 24, sec = Math.floor(frame / 24);
+    function two(v) { return ('0' + v).slice(-2); }
+    var tc = two(Math.floor(sec / 3600)) + ':' + two(Math.floor(sec / 60) % 60) + ':' + two(sec % 60) + ':' + two(fr);
+    var base = fwd(DATA) + '/grab', ways = grabWay ? [grabWay] : ['png', 'jpeg', 'export'], k, way, got, r;
+    for (k = 0; k < ways.length; k++) {
+      way = ways[k]; got = null;
+      ['.png', '.png.png', '.jpg', '.jpg.jpg', '.jpeg', '.mp4'].forEach(function (x) { try { fs.unlinkSync(base + x); } catch (e) {} });
+      if (way === 'export') {
+        await host('setInOut', { seqId: main.id, inTicks: frame * F, outTicks: (frame + 2) * F });
+        r = await host('exportDirect', { seqId: main.id, out: (base + '.mp4').replace(/\//g, '\\'), preset: $('exportPreset').value }, 600000);
+        got = await waitFile([base + '.mp4'], 5000);
+      } else {
+        var ext = way === 'png' ? '.png' : '.jpg';
+        r = await host('grabFrame', { seqId: main.id, ticks: frame * F, tc: tc, kind: way, path: (base + ext).replace(/\//g, '\\') }, 60000);
+        got = await waitFile([base + ext, base + ext + ext, base + '.jpeg'], 4000);
+        if (!got) log('thumbnail: Premiere wrote no ' + way + ' frame' + (r.note ? ' (' + r.note + ')' : ''));
+      }
+      if (!got) continue;
+      try { fs.unlinkSync(outJpg); } catch (e) {}
+      await ffTool('ffmpeg', ['-v', 'error', '-y', '-i', got, '-frames:v', '1', '-q:v', '2', outJpg]);
+      if (fs.existsSync(outJpg) && fs.statSync(outJpg).size > 1000) {
+        if (!grabWay) log('thumbnail: frames are saved by way "' + way + '"');
+        grabWay = way;
+        return true;
+      }
+    }
+    return false;
+  }
+  async function addTitles(picked, lyr, main, lyricTrack, tpl) {
+    var look = titleLook(), out = { problems: [], done: '' }, i, s;
+    if (!look) { log('titles: this channel has no title look yet, so no logos, titles or thumbnails'); return out; }
+    status('Adding logos and titles');
+    var parts = await host('titleParts', { tplName: settings.lyricsTemplate });
+    log('titles: template has ' + (parts.intro ? 'intro "' + parts.intro.name + '" on V' + (parts.intro.track + 1) : 'no intro') + ', ' + (parts.watermark ? 'watermark "' + parts.watermark.name + '" on V' + (parts.watermark.track + 1) : 'no watermark'));
+    var wm = parts.watermark, intro = parts.intro;
+    // a clip with sound (or a nest, which always has an audio side) is left out rather than risk the songs on A1
+    if (wm && (wm.nest || await hasSound(wm.path))) { out.problems.push('The watermark "' + wm.name + '" was not added: it is a nest or has sound'); wm = null; }
+    if (intro && (intro.nest || await hasSound(intro.path))) { out.problems.push('The intro logo "' + intro.name + '" was not added: it is a nest or has sound'); intro = null; }
+    var L = intro ? Math.round(Number(intro.durTicks) / F) : 0;
+    var titleTrack = intro ? intro.track : (wm ? wm.track + 1 : 1), need = Math.max(titleTrack, wm ? wm.track : 0) + 1;
+    if (lyricTrack < 0 || lyricTrack >= Math.min(titleTrack, wm ? wm.track : titleTrack)) throw fail('the lyrics are on V' + (lyricTrack + 1) + ', where the logo or title should go');
+    var rep = await host('report', { seqId: lyr.id });
+    if (rep.video.length < need) {
+      var add = await host('addVideoTracks', { seqId: lyr.id, count: need - rep.video.length });
+      if (add.videoAfter < need) throw fail('Premiere did not add the video tracks for logo and title (' + add.notes.join('; ') + ')');
+    }
+
+    // the title pictures
+    var dir = fwd(path.join(DATA, 'titles', projectKey()));
+    fs.mkdirSync(dir, { recursive: true });
+    picked.forEach(function (p) {
+      var png = drawTitle(p.name, look, tpl.w, tpl.h);
+      p.titlePng = '';
+      if (!png) { out.problems.push('No title for "' + p.name + '": the name is not "Artist - Title"'); return; }
+      p.titlePng = dir + '/' + p.name + '.png';
+      fs.writeFileSync(p.titlePng, png);
+    });
+    var withTitle = picked.filter(function (p) { return p.titlePng; });
+    if (withTitle.length) {
+      var imp = await host('ensureImported', { paths: withTitle.map(function (p) { return p.titlePng; }), bin: NAME }, 300000);
+      imp.items.forEach(function (it, k) { if (!it.found) { out.problems.push('Premiere did not import the title of "' + withTitle[k].name + '"'); withTitle[k].titlePng = ''; } });
+    }
+
+    // watermark, intro logo and title of each song
+    var logos = 0, titles = 0, notes = [];
+    for (i = 0; i < picked.length; i++) {
+      s = picked[i];
+      var first = s.firstLyric === undefined ? s.audioFrames : s.firstLyric, t0 = s.startFrame * F, r;
+      s.hasLogo = !!intro && first >= L;
+      s.lead = s.hasLogo ? L : 0;
+      var room = !intro || s.hasLogo ? first - s.lead : 0;
+      s.titleAt = -1;
+      if (wm) {
+        r = await host('copyClip', { seqId: lyr.id, tplName: settings.lyricsTemplate, tplTrack: wm.track, tplIndex: wm.index, track: wm.track, startTicks: t0, endTicks: (s.startFrame + s.audioFrames) * F, keys: !intro || s.hasLogo });
+        notes = notes.concat(r.notes);
+        if (r.audioOn.indexOf(0) >= 0) out.problems.push('The watermark put sound on A1 at "' + s.name + '": check that song\'s audio');
+      }
+      if (s.hasLogo) {
+        r = await host('copyClip', { seqId: lyr.id, tplName: settings.lyricsTemplate, tplTrack: intro.track, tplIndex: intro.index, track: intro.track, startTicks: t0, keys: true });
+        notes = notes.concat(r.notes); logos++;
+        if (r.audioOn.indexOf(0) >= 0) out.problems.push('The intro logo put sound on A1 at "' + s.name + '": check that song\'s audio');
+      }
+      if (s.titlePng && room >= TITLE_MIN) {
+        await host('placeVideo', { seqId: lyr.id, path: s.titlePng, track: titleTrack, startTicks: (s.startFrame + s.lead) * F, endTicks: (s.startFrame + first) * F, scaleToFrame: false });
+        s.titleAt = s.lead + Math.min(24, Math.floor(room / 2)); titles++;
+      }
+      log('titles: ' + s.name + ': first lyric at ' + (first / FPS).toFixed(2) + ' s -> ' + (s.hasLogo ? 'logo' : 'no logo') + ', ' + (s.titleAt >= 0 ? 'title for ' + (room / FPS).toFixed(2) + ' s' : 'no title'));
+    }
+    if (notes.length) log('titles: notes [' + notes.filter(function (x, k) { return notes.indexOf(x) === k; }).slice(0, 8).join('; ') + ']');
+
+    // thumbnails: a song without a title in the video gets one for a moment, with the lyric under it switched off
+    var outDir = exportDir(), thumbs = 0;
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+    for (i = 0; i < withTitle.length; i++) {
+      s = withTitle[i];
+      if (!s.titlePng) continue;
+      status('Saving thumbnail ' + (i + 1) + ' of ' + withTitle.length);
+      var temp = s.titleAt < 0, at = s.startFrame + s.lead, frame = temp ? at + 12 : s.startFrame + s.titleAt, ok = false;
+      try {
+        if (temp) {
+          await host('placeVideo', { seqId: lyr.id, path: s.titlePng, track: titleTrack, startTicks: at * F, endTicks: (at + 24) * F, scaleToFrame: false });
+          var off = await host('setDisabled', { seqId: lyr.id, track: lyricTrack, atTicks: frame * F, disabled: true });
+          if (off.notes.length) log('thumbnail: the lyric could not be switched off: ' + off.notes[0]);
+        }
+        ok = await grabThumb(main, frame, outDir + '/' + s.name + '.jpg');
+      } finally {
+        if (temp) {
+          await host('removeClipAt', { seqId: lyr.id, track: titleTrack, startTicks: at * F });
+          await host('setDisabled', { seqId: lyr.id, track: lyricTrack, atTicks: frame * F, disabled: false });
+        }
+      }
+      if (ok) thumbs++; else out.problems.push('No thumbnail was saved for "' + s.name + '"');
+    }
+    out.done = logos + ' intro logos, ' + titles + ' titles and ' + thumbs + ' thumbnails for ' + picked.length + (picked.length === 1 ? ' song' : ' songs') + '; thumbnails are in ' + outDir;
+    return out;
   }
 
   // Focuses the timeline, selects everything and fires Premiere's own upgrade command. Returns the track that got the graphics.
@@ -1345,6 +1544,10 @@
     if (info.overlay) {
       line(info.overlay.full, info.overlay.full ? 'Overlay added to every song' : 'Overlay does not cover every song');
       if (!info.overlay.lookCopied) note('The overlay is not in your templates, so it was added with normal blending. Put it in the main template once, with the blend mode and opacity you want, and the next build will copy that look.');
+    }
+    if (info.titles) {
+      (info.titles.problems || []).forEach(function (t) { line(false, t); });
+      if (info.titles.done) note(info.titles.done);
     }
     if (info.split) note(info.split + ' long lyrics were split into two screens');
     note(selected + ' new lyric graphics are selected in "' + batch.lyricsName + '"');
@@ -1677,6 +1880,7 @@
     // the combined SRTs were temporary files of the panel
     r.srts.forEach(function (p) {
       if (/^lyrics \d\d-\d\d \d{6}\.srt$/i.test(path.basename(p))) try { fs.unlinkSync(path.join(DATA, path.basename(p))); } catch (e) {}
+      if (/\/titles\/[^\/]+\/[^\/]+\.png$/i.test(p)) try { fs.unlinkSync(p); } catch (e) {}
     });
     loadBatches(); project = await host('info'); syncBatches(); saveBatches();
     batch = targetBatch();

@@ -231,9 +231,28 @@ LPFN.placeVideo = function (a) {
     };
 };
 
+// Copies the keyframes of one property to another. shift = how much later the new clip's source time runs (ticks).
+function lpCopyKeys(sp, dp, shift) {
+    var keys = sp.getKeys(), i, v, t, form = -1, n = 0;
+    if (!keys || !keys.length) return 0;
+    if (!dp.isTimeVarying()) dp.setTimeVarying(true);
+    for (i = 0; i < keys.length && i < 200; i++) {
+        v = sp.getValueAtKey(keys[i]);
+        t = Number(keys[i].ticks) + shift;
+        form = lpAddKey(dp, t, v, form);
+        if (form < 0) break;
+        // a position that eases in the template eases here too (the exact curve is Premiere's own)
+        if (v instanceof Array) { try { dp.setInterpolationTypeAtKey(lpTime(t), 5, false); } catch (e) {} }
+        n++;
+    }
+    return n;
+}
+
 // Copies Motion and Opacity (incl. blend mode) from one clip to another. Returns notes on what could not be copied.
-function lpCopyIntrinsics(src, dst) {
+// keys: true = keyframes are copied too, false = keyframed properties are left alone, omitted = they are reported.
+function lpCopyIntrinsics(src, dst, keys) {
     var notes = [], i, j, p, sc, dc, sp;
+    var shift = Number(dst.inPoint.ticks) - Number(src.inPoint.ticks);
     for (i = 0; i < src.components.numItems; i++) {
         sc = src.components[i];
         if (sc.matchName !== 'AE.ADBE Motion' && sc.matchName !== 'AE.ADBE Opacity') {
@@ -246,12 +265,59 @@ function lpCopyIntrinsics(src, dst) {
         for (p = 0; p < sc.properties.numItems && p < dc.properties.numItems; p++) {
             sp = sc.properties[p];
             try {
-                if (sp.isTimeVarying()) { notes.push('keyframed, not copied: ' + sc.displayName + '/' + sp.displayName); continue; }
+                if (sp.isTimeVarying()) {
+                    if (keys === true) { if (!lpCopyKeys(sp, dc.properties[p], shift)) notes.push('keyframes not copied: ' + sc.displayName + '/' + sp.displayName); }
+                    else if (keys !== false) notes.push('keyframed, not copied: ' + sc.displayName + '/' + sp.displayName);
+                    continue;
+                }
                 dc.properties[p].setValue(sp.getValue(), true);
             } catch (e) { notes.push(sc.displayName + '/' + sp.displayName + ': ' + e); }
         }
     }
     return notes;
+}
+
+// Adds to dst (qc = the same clip in the QE DOM) every effect src carries besides Motion and Opacity, with its settings.
+function lpCopyEffects(src, dst, qc, keys, added, notes) {
+    var i, p, sc, dc, fx, sp, before, col;
+    var shift = Number(dst.inPoint.ticks) - Number(src.inPoint.ticks);
+    for (i = 0; i < src.components.numItems && i < 50; i++) {
+        sc = src.components[i];
+        if (/Motion|Opacity|Time Remapping/.test(sc.matchName)) continue;
+        fx = null;
+        try { fx = qe.project.getVideoEffectByName(sc.displayName); } catch (e2) {}
+        before = dst.components.numItems;
+        try { if (fx) qc.addVideoEffect(fx); } catch (e3) { notes.push(sc.displayName + ': ' + e3); }
+        if (dst.components.numItems <= before) { notes.push('not added: ' + sc.displayName); continue; }
+        dc = dst.components[dst.components.numItems - 1];
+        for (p = 0; p < sc.properties.numItems && p < dc.properties.numItems; p++) {
+            sp = sc.properties[p];
+            try {
+                if (sp.isTimeVarying()) {
+                    if (keys === true) lpCopyKeys(sp, dc.properties[p], shift);
+                    else notes.push('keyframed, not copied: ' + sc.displayName + '/' + sp.displayName);
+                    continue;
+                }
+                col = null;
+                try { col = sp.getColorValue(); } catch (e4) {}
+                if (col && col.length === 4) dc.properties[p].setColorValue(col[0], col[1], col[2], col[3], true);
+                else dc.properties[p].setValue(sp.getValue(), true);
+            } catch (e5) { if (notes.length < 8) notes.push(sc.displayName + '/' + sp.displayName + ': ' + e5); }
+        }
+        added.push(sc.displayName);
+    }
+}
+
+// The clip of the QE DOM that starts at the given time on a video track (null if none).
+function lpQeClipAt(q, track, ticks) {
+    var qt = q.getVideoTrackAt(track), i, it;
+    for (i = 0; i < qt.numItems && i < 5000; i++) {
+        try {
+            it = qt.getItemAt(i);
+            if (it.type !== 'Empty' && String(it.start.ticks) === String(ticks)) return it;
+        } catch (e) {}
+    }
+    return null;
 }
 
 // Re-places the template's layer (first clip on tplTrack of the template sequence) over [startTicks, endTicks],
@@ -466,6 +532,19 @@ LPFN.placeSequence = function (a) {
     };
 };
 
+// Gives the first clip on a track of the sequence the effects (e.g. Drop Shadow) that the first clip on the same
+// track of the template carries, with their settings. Motion and Opacity are left as they are.
+LPFN.copyEffects = function (a) {
+    var seq = lpSeqById(a.seqId), tpl = lpSeqByName(a.tplName), added = [], notes = [];
+    var src = a.track < tpl.videoTracks.numTracks ? tpl.videoTracks[a.track].clips[0] : null;
+    var dst = seq.videoTracks[a.track].clips[0];
+    if (!src || !dst) return { added: added, notes: ['no clip to copy ' + (src ? 'to' : 'from')] };
+    var q = lpQeSeq(seq), qc = lpQeClipAt(q, a.track, String(dst.start.ticks));
+    if (!qc) return { added: added, notes: ['clip not found on V' + (a.track + 1)] };
+    lpCopyEffects(src, dst, qc, false, added, notes);
+    return { added: added, notes: notes };
+};
+
 // Lists the media directly inside a root-level bin (sub-bins are ignored).
 LPFN.binItems = function (a) {
     var bin = lpFindBin(a.name, false), out = [], i, ch, mp;
@@ -668,6 +747,85 @@ LPFN.moveLyricStart = function (a) {
     return { moved: Math.abs(Number(c.start.ticks) - to) <= F, start: String(c.start.ticks), end: String(c.end.ticks), wantEnd: end0, notes: notes };
 };
 
+// ---------- logo, title and thumbnail ----------
+
+// Reads the lyrics template: which clip is the watermark (the only clip of its track, from the start) and which is
+// the intro logo (first clip of a track that has more after it). Graphics (the template's title and lyric) are skipped.
+LPFN.titleParts = function (a) {
+    var tpl = lpSeqByName(a.tplName), out = { watermark: null, intro: null, tracks: tpl.videoTracks.numTracks }, t, tr, c, pi, mp, nest, part;
+    for (t = 1; t < tpl.videoTracks.numTracks; t++) {
+        tr = tpl.videoTracks[t];
+        if (!tr.clips.numItems) continue;
+        c = tr.clips[0]; pi = c.projectItem; mp = ''; nest = false;
+        if (Number(c.start.ticks) !== 0 || !pi) continue;
+        try { mp = pi.getMediaPath(); } catch (e) {}
+        try { nest = !!pi.isSequence(); } catch (e2) {}
+        if (!mp && !nest) continue;
+        part = { track: t, index: 0, name: c.name, path: String(mp || ''), nest: nest, durTicks: String(Number(c.end.ticks) - Number(c.start.ticks)) };
+        if (tr.clips.numItems === 1) { if (!out.watermark) out.watermark = part; }
+        else if (!out.intro) out.intro = part;
+    }
+    return out;
+};
+
+// Puts a copy of a template clip (same source, same look, same effects) on a track of the sequence.
+// endTicks omitted = the template clip's own length. keys: copy the keyframes too.
+LPFN.copyClip = function (a) {
+    var seq = lpSeqById(a.seqId), tpl = lpSeqByName(a.tplName), src = tpl.videoTracks[a.tplTrack].clips[a.tplIndex];
+    if (!src || !src.projectItem) throw new Error('template clip not found on V' + (a.tplTrack + 1));
+    var track = seq.videoTracks[a.track], notes = [], added = [], aBefore = [], audioOn = [], i, k, tr, dst, q, qc;
+    var want = a.endTicks ? Number(a.endTicks) : Number(a.startTicks) + Number(src.end.ticks) - Number(src.start.ticks);
+    for (i = 0; i < seq.audioTracks.numTracks; i++) aBefore.push(seq.audioTracks[i].clips.numItems);
+    dst = lpPlace(track, src.projectItem, a.startTicks).clip;
+    try { dst.end = lpTime(want); } catch (e) { notes.push('end: ' + e); }
+    dst = lpFindClipAt(track, a.startTicks);
+    var own = lpCopyIntrinsics(src, dst, !!a.keys);
+    for (i = 0; i < own.length; i++) if (own[i].indexOf('not copied: ') !== 0) notes.push(own[i]);   // effects are copied below
+    try {
+        q = lpQeSeq(seq); qc = lpQeClipAt(q, a.track, a.startTicks);
+        if (qc) lpCopyEffects(src, dst, qc, !!a.keys, added, notes);
+        else if (src.components.numItems > 2) notes.push('effects not copied: clip not found in QE');
+    } catch (e2) { notes.push('effects: ' + e2); }
+    // sound the clip brought along is removed again, except on A1 where the songs are (reported instead)
+    for (i = 0; i < seq.audioTracks.numTracks; i++) {
+        tr = seq.audioTracks[i];
+        if (tr.clips.numItems <= (aBefore[i] || 0)) continue;
+        audioOn.push(i);
+        if (i === 0) continue;
+        for (k = tr.clips.numItems - 1; k >= 0; k--) if (String(tr.clips[k].start.ticks) === String(a.startTicks)) tr.clips[k].remove(false, false);
+    }
+    return { start: String(dst.start.ticks), end: String(dst.end.ticks), wantEnd: String(want), effects: added, audioOn: audioOn, notes: notes };
+};
+
+// Switches off (or on again) the clips of a track that are on screen at the given time.
+LPFN.setDisabled = function (a) {
+    var seq = lpSeqById(a.seqId), tr = seq.videoTracks[a.track], i, c, n = 0, notes = [];
+    for (i = 0; i < tr.clips.numItems; i++) {
+        c = tr.clips[i];
+        if (Number(c.start.ticks) <= Number(a.atTicks) && Number(c.end.ticks) > Number(a.atTicks)) {
+            try { c.disabled = !!a.disabled; n++; } catch (e) { notes.push(String(e)); }
+        }
+    }
+    return { changed: n, notes: notes };
+};
+
+LPFN.removeClipAt = function (a) {
+    var seq = lpSeqById(a.seqId), c = lpFindClipAt(seq.videoTracks[a.track], a.startTicks);
+    if (c) c.remove(false, false);
+    return { removed: !!c };
+};
+
+// Asks Premiere to write one frame of the sequence as a picture (QE DOM). The panel checks whether the file appears.
+LPFN.grabFrame = function (a) {
+    var seq = lpSeqById(a.seqId), q = lpQeSeq(seq), note = '';
+    seq.setPlayerPosition(String(a.ticks));
+    try {
+        if (a.kind === 'jpeg') q.exportFrameJPEG(a.tc, a.path);
+        else q.exportFramePNG(a.tc, a.path);
+    } catch (e) { note = String(e); }
+    return { cti: String(q.CTI.timecode), note: note };
+};
+
 // ---------- fades ----------
 
 // Adds one opacity keyframe. Keyframe times are in the clip's source time (its in point is the first frame).
@@ -760,7 +918,7 @@ LPFN.clearBatch = function (a) {
             ch = bin.children[i];
             mp = '';
             if (ch.type !== 2) { try { mp = lpNormPath(ch.getMediaPath()); } catch (e3) {} }
-            if (mp && /[.]srt$/.test(mp) && mp.indexOf(data + '/') === 0) { ours.push(ch); srts.push(mp); }
+            if (mp && /[.](srt|png)$/.test(mp) && mp.indexOf(data + '/') === 0) { ours.push(ch); srts.push(mp); }
             else if (mp && /[.](mp3|wav|m4a|flac|aac|ogg|aif|aiff)$/.test(mp)) ours.push(ch);
             else kept++;
         }
