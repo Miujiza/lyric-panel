@@ -1267,7 +1267,7 @@
 
     // 6. leave the new lyric graphics selected so the text style can be applied in one go
     await host('activate', { seqId: lyr.id });
-    await colourLyrics(lyr, check.newTrack, picked.filter(toCheck));
+    info.coloured = await colourLyrics(lyr, check.newTrack, picked.filter(toCheck));
     var sel = await host('selectTrack', { seqId: lyr.id, track: check.newTrack });
     status('Done. ' + picked.length + ' songs, ' + n + ' lyrics' + (target ? ' added.' : '.'), 1);
     project = await host('info');
@@ -1584,18 +1584,39 @@
   // The lyrics to check get their own label colour. Premiere has no script call for that either: they are selected
   // and the Edit > Label command is fired, with the timeline focused the same way as for the upgrade.
   var CHECK_LABEL = 'Mango';
+  // -> true when the lyrics were coloured (or there was nothing to colour)
   async function colourLyrics(seq, track, list) {
-    if (!list.length || track < 0) return;
-    var id = menuIds['Edit>Label>' + CHECK_LABEL], target = 'Window>Timelines>' + seq.name;
-    if (!id || !menuIds[target]) { log('colour: menu item missing, the lyrics keep the normal colour'); return; }
+    if (!list.length || track < 0) return true;
+    var label = 'Edit>Label>' + CHECK_LABEL, target = 'Window>Timelines>' + seq.name, tries, state = '';
     try {
-      var otherKey = Object.keys(menuIds).filter(function (k) { return k.indexOf('Window>Timelines>') === 0 && k !== target; })[0];
-      if (otherKey) { await menu('id', menuIds[otherKey]); await sleep(900); }
-      await menu('id', menuIds[target]); await sleep(1200);
-      var r = await host('selectRange', { seqId: seq.id, track: track, ranges: list.map(function (s) { return { s: s.startFrame * F, e: (s.startFrame + s.audioFrames) * F }; }) });
-      if (r.selected) { await menu('id', id); await sleep(1000); }
-      log('colour: ' + r.selected + ' lyrics of ' + list.length + (list.length === 1 ? ' song' : ' songs') + ' labelled ' + CHECK_LABEL);
+      for (tries = 1; tries <= 3; tries++) {
+        // the menu is read again each time: the ids of the timelines change while a build opens sequences, and the
+        // Label command only works (is not grey) while the timeline has the focus and clips are selected
+        var ids = menuState(await menu('dump'));
+        if (!ids[label] || !ids[target]) { log('colour: menu item missing, the lyrics keep the normal colour'); return false; }
+        var otherKey = Object.keys(ids).filter(function (k) { return k.indexOf('Window>Timelines>') === 0 && k !== target; })[0];
+        if (otherKey) { await menu('id', ids[otherKey].id); await sleep(900); }
+        await menu('id', ids[target].id); await sleep(1200);
+        var r = await host('selectRange', { seqId: seq.id, track: track, ranges: list.map(function (s) { return { s: s.startFrame * F, e: (s.startFrame + s.audioFrames) * F }; }) });
+        if (!r.selected) { log('colour: no lyrics found to select'); return false; }
+        await sleep(400);
+        ids = menuState(await menu('dump'));
+        state = ids[label] ? ids[label].state : 'missing';
+        if (state !== 'grey' && state !== 'missing') {
+          await menu('id', ids[label].id); await sleep(1000);
+          log('colour: ' + r.selected + ' lyrics of ' + list.length + (list.length === 1 ? ' song' : ' songs') + ' labelled ' + CHECK_LABEL + (tries > 1 ? ' (try ' + tries + ')' : ''));
+          return true;
+        }
+        log('colour: try ' + tries + ': ' + r.selected + ' lyrics selected but the Label command is ' + state + ' (the timeline does not have the focus)');
+      }
     } catch (e) { log('colour: failed, the lyrics keep the normal colour: ' + e.message); }
+    return false;
+  }
+  // menu dump -> { 'Menu>Item': { id, state } }
+  function menuState(dump) {
+    var out = {};
+    String(dump || '').split(/\r?\n/).forEach(function (l) { var p = l.split('\t'); if (p.length >= 2) out[p[0]] = { id: p[1], state: (p[2] || '').trim() }; });
+    return out;
   }
 
   // How far up a lyric of this many rows has to move to sit in the middle of the frame, as a fraction of the frame height.
@@ -1650,6 +1671,7 @@
       line(info.overlay.full, info.overlay.full ? 'Overlay added to every song' : 'Overlay does not cover every song');
       if (!info.overlay.lookCopied) note('The overlay is not in your templates, so it was added with normal blending. Put it in the main template once, with the blend mode and opacity you want, and the next build will copy that look.');
     }
+    if (info.coloured === false) line(false, 'The lyrics to check could not be coloured ' + CHECK_LABEL + ' (see the log)');
     if (info.titles) {
       (info.titles.problems || []).forEach(function (t) { line(false, t); });
       if (info.titles.done) note(info.titles.done);
