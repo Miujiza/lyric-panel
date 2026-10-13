@@ -732,6 +732,56 @@ LPFN.saveProject = function () {
     return { path: String(app.project.path) };
 };
 
+// Removes what the panel added to the project: the sequences with the given names and, from the root bin a.bin, the
+// song audio and the combined SRTs (a.dataDir). Anything else found in that bin stays, and then so does the bin.
+LPFN.clearBatch = function (a) {
+    var root = app.project.rootItem, seqs = app.project.sequences, hit = [], ours = [], srts = [], notes = [], left = [];
+    var i, k, s, id, item, ch, mp, still, trash = null, removedSeqs = [], kept = 0, bin = lpFindBin(a.bin, false);
+    var TRASH = a.bin + ' (deleting)', data = lpNormPath(a.dataDir);
+    function exists(seqId) {
+        var j;
+        for (j = 0; j < app.project.sequences.numSequences; j++) if (app.project.sequences[j].sequenceID === seqId) return true;
+        return false;
+    }
+    for (k = 0; k < a.names.length; k++) {
+        for (i = 0; i < seqs.numSequences; i++) if (seqs[i].name === a.names[k]) hit.push(seqs[i]);
+    }
+    for (i = 0; i < hit.length; i++) {
+        s = hit[i]; id = s.sequenceID; item = s.projectItem;
+        removedSeqs.push(s.name);
+        try { app.project.deleteSequence(s); } catch (e) { notes.push('deleteSequence: ' + e); }
+        if (exists(id) && item) {
+            if (!trash) trash = root.createBin(TRASH);
+            try { item.moveBin(trash); } catch (e2) { notes.push('move sequence: ' + e2); }
+        }
+    }
+    if (bin) {
+        for (i = 0; i < bin.children.numItems && i < 20000; i++) {
+            ch = bin.children[i];
+            mp = '';
+            if (ch.type !== 2) { try { mp = lpNormPath(ch.getMediaPath()); } catch (e3) {} }
+            if (mp && /[.]srt$/.test(mp) && mp.indexOf(data + '/') === 0) { ours.push(ch); srts.push(mp); }
+            else if (mp && /[.](mp3|wav|m4a|flac|aac|ogg|aif|aiff)$/.test(mp)) ours.push(ch);
+            else kept++;
+        }
+        if (!kept) {
+            try { bin.deleteBin(); } catch (e4) { notes.push('deleteBin: ' + e4); }
+        } else if (ours.length) {
+            if (!trash) trash = root.createBin(TRASH);
+            for (i = 0; i < ours.length; i++) { try { ours[i].moveBin(trash); } catch (e5) { if (notes.length < 5) notes.push('move: ' + e5); } }
+        }
+    }
+    if (trash) { try { trash.deleteBin(); } catch (e6) { notes.push('deleteBin: ' + e6); } }
+    for (k = 0; k < a.names.length; k++) {
+        still = false;
+        for (i = 0; i < app.project.sequences.numSequences; i++) if (app.project.sequences[i].name === a.names[k]) still = true;
+        if (still) left.push(a.names[k]);
+    }
+    if (lpFindBin(TRASH, false)) left.push(TRASH);
+    if (bin && !kept && lpFindBin(a.bin, false)) left.push('bin ' + a.bin);
+    return { sequences: removedSeqs, items: bin ? ours.length : 0, kept: kept, hadBin: !!bin, srts: srts, left: left, notes: notes };
+};
+
 // Exports the sequence's in-to-out range straight from Premiere (no Media Encoder). Premiere is busy until it ends.
 // preset: a full .epr path, or "sys:<file name>" for one of Premiere's own H.264 presets.
 LPFN.exportDirect = function (a) {

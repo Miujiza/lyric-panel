@@ -110,6 +110,8 @@
     '.notice p{margin:2px 0}',
     '.chip[data-lyr]{cursor:pointer}',
     'button.btn.done{background:#12351f;border-color:#1f5a35;color:#5fd38a}',
+    'button.btn.danger{background:#3b1717;border-color:#6a2626;color:#f08080}',
+    'button.btn.danger:hover{background:#4a1c1c}',
     '.result{display:none;margin:10px 0 0}',
     '.result.on{display:block}',
     '.result .line{display:flex;gap:8px;align-items:flex-start;margin:3px 0}',
@@ -203,9 +205,12 @@
       '<div class="listhead"><b id="exportTitle">No batch built yet</b><span class="sp"></span>' +
         '<button class="btn small" id="exAll">All</button><button class="btn small" id="exNone">None</button></div>' +
       '<div class="list" id="exportList"><div class="empty">Build a batch first. Each song will appear here with its range in the main sequence.</div></div>' +
-      '<div style="display:flex;gap:8px;padding-top:10px">' +
+      '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:10px">' +
         '<button class="btn" id="addFades" title="Puts a 6-frame fade in and a 6-frame fade out on every lyric, measured from where each lyric really starts and ends. Click it again after you trim a lyric.">Add fades</button>' +
-        '<button class="btn" id="saveSrts" title="Writes the lyrics as they are now on the timeline (your corrected timing and text) to one SRT per song.">Save SRTs</button></div>' +
+        '<button class="btn" id="saveSrts" title="Writes the lyrics as they are now on the timeline (your corrected timing and text) to one SRT per song.">Save SRTs</button>' +
+        '<span style="flex:1"></span>' +
+        '<button class="btn" id="clearBatch" title="Removes what the panel added to this project: the two Lyric Panel sequences and the Lyric Panel bin with its songs. Your templates, backgrounds, mp3 and SRT files stay.">Clear batch</button>' +
+        '<span id="clearAsk" style="display:none;align-items:center;gap:8px">Are you sure?<button class="btn danger" id="clearYes">Yes, delete</button><button class="btn" id="clearNo">Cancel</button></span></div>' +
       '<div class="foot"><div class="stat"><div class="msg" id="exStatus">Exports straight from Premiere, one song after another.</div><div class="bar"><i id="exBar"></i></div></div>' +
         '<button class="btn primary" id="exportAll">Export</button></div>' +
     '</section>' +
@@ -928,6 +933,16 @@
     $('saveSrts').innerHTML = saved ? ICON.check + 'SRTs saved' : 'Save SRTs';
     $('saveSrts').title = saved ? 'Saved to the folder above. Click again only after you change a lyric.' : 'Writes the lyrics as they are now on the timeline (your corrected timing and text) to one SRT per song.';
     $('saveSrts').disabled = busy || !batch;
+    $('clearBatch').disabled = busy || !hasAdded();
+    if (busy || !hasAdded()) askClear(false);
+  }
+  // true when the project holds something the panel added: one of its two sequences, or its bin
+  function hasAdded() {
+    return !!project && !!(namedSeq(NAME + ' Lyrics') || namedSeq(NAME + ' Main') || (project.bins || []).some(function (b) { return b.name === NAME; }));
+  }
+  function askClear(on) {
+    $('clearBatch').style.display = on ? 'none' : '';
+    $('clearAsk').style.display = on ? 'flex' : 'none';
   }
   function renderSongs() {
     var list = $('songs');
@@ -1650,6 +1665,28 @@
     exStatus('Fades added to ' + done + ' of ' + total + ' lyrics (' + FADE_FRAMES + ' frames in, ' + FADE_FRAMES + ' out)' + (skipped ? '; ' + skipped + ' left alone (too short or no opacity)' : '') + '.', 1, done + skipped < total);
   }
 
+  // ---------- clear ----------
+  // Takes out of the project what the panel put there, so the next batch starts from nothing: the two sequences and
+  // the panel's bin (song audio and combined SRTs). Templates, backgrounds and the files in the songs folder stay,
+  // and the next background carries on from where the last batch stopped.
+  async function clearBatch() {
+    exStatus('Clearing the batch', 0);
+    var r = await host('clearBatch', { names: [NAME + ' Main', NAME + ' Lyrics'], bin: NAME, dataDir: fwd(DATA) }, 300000);
+    log('clear: sequences ' + (r.sequences.join(', ') || 'none') + '; bin ' + (r.hadBin ? r.items + ' items removed, ' + r.kept + ' kept' : 'not there') +
+      (r.left.length ? '; STILL THERE: ' + r.left.join(', ') : '') + (r.notes.length ? ' [' + r.notes.slice(0, 5).join('; ') + ']' : ''));
+    // the combined SRTs were temporary files of the panel
+    r.srts.forEach(function (p) {
+      if (/^lyrics \d\d-\d\d \d{6}\.srt$/i.test(path.basename(p))) try { fs.unlinkSync(path.join(DATA, path.basename(p))); } catch (e) {}
+    });
+    loadBatches(); project = await host('info'); syncBatches(); saveBatches();
+    batch = targetBatch();
+    exOn = {};
+    renderSongs(); renderExport();
+    if (r.left.length) throw fail('Premiere did not remove: ' + r.left.join(', ') + '. Delete it by hand in the Project panel.');
+    exStatus('Cleared: ' + r.sequences.length + (r.sequences.length === 1 ? ' sequence' : ' sequences') + (r.hadBin ? ' and ' + r.items + ' items of the ' + NAME + ' bin' : '') +
+      (r.kept ? '. ' + r.kept + ' other items in the bin were left alone.' : '.'), 1);
+  }
+
   // ---------- wiring ----------
   function startTiming() { makeSrts().catch(function (e) { log('ERROR ' + e.message); $('status').textContent = e.message; }); }
   // after: called once fn has finished without an error
@@ -1784,6 +1821,14 @@
     if (busy) return;
     busy = true; updateButtons();
     saveSrts().catch(function (e) { exStatus(e && e.message ? e.message : String(e), undefined, true); })
+      .then(function () { busy = false; updateButtons(); });
+  };
+  $('clearBatch').onclick = function () { if (!busy) askClear(true); };
+  $('clearNo').onclick = function () { askClear(false); };
+  $('clearYes').onclick = function () {
+    if (busy) return;
+    busy = true; updateButtons();
+    clearBatch().catch(function (e) { exStatus(e && e.message ? e.message : String(e), undefined, true); })
       .then(function () { busy = false; updateButtons(); });
   };
   $('exportList').onchange = function (ev) {
