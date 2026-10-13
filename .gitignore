@@ -28,3 +28,8 @@ LyricPanel3/_tmp/*
 
 # pasted lyric samples
 example.txt
+
+# title-card test: the scripts are kept, the pictures made from the thumbnails are not
+Title Test/*.jpg
+Title Test/*.png
+/*.PNG
