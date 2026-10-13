@@ -1311,32 +1311,31 @@
     var c = document.createElement('canvas'); c.width = w; c.height = h;
     var g = c.getContext('2d'), font = 'px "' + (look.font || settings.font) + '"';
     g.scale(w / 1920, w / 1920); g.textBaseline = 'alphabetic';
-    // where the ink of a text lies at a font size: width, height, and where each letter goes (tracking moves every
-    // letter; the font's own kerning is kept by measuring pairs)
-    // The height is taken without accents: an accent must not push its line down or make the title smaller.
+    // Where the ink of a text lies at a font size. The text is always drawn as one piece, so the font shapes it as
+    // Premiere does (Bakso Sapi picks its letter forms by their neighbours: letter-by-letter drawing spaced it wrongly).
+    // Tracking uses the canvas's own letter spacing where it exists; where it does not, the line is squeezed sideways
+    // to the width tracking would give. The height is taken without accents: an accent must not push its line down
+    // or make the title smaller.
+    var canSpace = 'letterSpacing' in g;
     function ink(text, size) {
       g.font = size + font;
-      var t, v, i, x = 0, l = 1e9, r = -1e9, a = 0, d = -1e9, at = [];
+      var sp = (look.track || 0) * size / 1000, t, v, w, fx = 1;
       function bare(x) { return x.normalize('NFD').replace(/[\u0300-\u036f]/g, '') || x; }
-      if (!look.track) {
-        t = g.measureText(text); v = g.measureText(bare(text));
-        return { l: t.actualBoundingBoxLeft, a: v.actualBoundingBoxAscent, w: t.actualBoundingBoxLeft + t.actualBoundingBoxRight, h: v.actualBoundingBoxAscent + v.actualBoundingBoxDescent, at: null };
-      }
-      for (i = 0; i < text.length; i++) {
-        t = g.measureText(text[i]); v = g.measureText(bare(text[i])); at.push(x);
-        l = Math.min(l, x - t.actualBoundingBoxLeft); r = Math.max(r, x + t.actualBoundingBoxRight);
-        a = Math.max(a, v.actualBoundingBoxAscent); d = Math.max(d, v.actualBoundingBoxDescent);
-        x += (i + 1 < text.length ? g.measureText(text.substr(i, 2)).width - g.measureText(text[i + 1]).width : t.width) + look.track * size / 1000;
-      }
-      return { l: -l, a: a, w: r - l, h: a + d, at: at };
+      if (sp && canSpace) g.letterSpacing = sp + 'px';
+      t = g.measureText(text); v = g.measureText(bare(text));
+      if (sp && canSpace) g.letterSpacing = '0px';
+      w = t.actualBoundingBoxLeft + t.actualBoundingBoxRight;
+      if (sp && !canSpace && w > 0) fx = Math.max(0.5, (w + (text.length - 1) * sp) / w);
+      return { l: t.actualBoundingBoxLeft, a: v.actualBoundingBoxAscent, w: w * fx, h: v.actualBoundingBoxAscent + v.actualBoundingBoxDescent, fx: fx, sp: sp };
     }
     function put(text, size, top, colour) {
-      var i = ink(text, size), k;
+      var i = ink(text, size);
       g.save();
-      g.translate(look.cx - i.w * look.sx / 2, top); g.scale(look.sx, look.sy);
+      g.translate(look.cx - i.w * look.sx / 2, top); g.scale(look.sx * i.fx, look.sy);
       g.fillStyle = colour;
-      if (!i.at) g.fillText(text, i.l, i.a);
-      else for (k = 0; k < text.length; k++) g.fillText(text[k], i.l + i.at[k], i.a);
+      if (i.sp && canSpace) g.letterSpacing = i.sp + 'px';
+      g.fillText(text, i.l, i.a);
+      if (i.sp && canSpace) g.letterSpacing = '0px';
       g.restore();
     }
     function shown(t) { return look.caps ? t.toUpperCase() : t; }
