@@ -1115,9 +1115,22 @@
     var gapFrames = Math.round(settings.gap * FPS), i, s, b;
 
     // 1. the two sequences: fresh copies of the templates, or the batch being added to
+    // Premiere puts upgraded captions on the TOP video track. So with logos and titles the lyrics live on the top
+    // track and the watermark and title tracks stay below it, as numbered in the template: a later build then adds
+    // its lyrics to the same track. logoTop = the highest track a logo or title uses (-1: this channel has none).
+    var logoTop = -1;
+    if (titleLook()) {
+      var tp = await host('titleParts', { tplName: settings.lyricsTemplate });
+      logoTop = Math.max(tp.intro ? tp.intro.track : (tp.watermark ? tp.watermark.track + 1 : 1), tp.watermark ? tp.watermark.track : 0);
+    }
     if (target) {
       tick('Adding to ' + target.mainName);
       b = target;
+      if (logoTop >= 0) {
+        var trep = await host('report', { seqId: target.lyricsId }), most = 0;
+        trep.video.forEach(function (t, k) { if (t.count > trep.video[most].count) most = k; });
+        if (trep.video[most].count && (most !== trep.video.length - 1 || most <= logoTop)) throw fail('This batch has its lyrics on V' + (most + 1) + ', below the logo and title tracks, so songs cannot be added to it. On the Export tab click Clear batch, then build all the songs together.');
+      }
     } else {
       tick('Creating the sequences');
       var names = { lyrics: NAME + ' Lyrics', main: NAME + ' Main' };
@@ -1125,6 +1138,7 @@
       var lyrNew = await host('cloneSequence', { name: settings.lyricsTemplate, newName: names.lyrics });
       var lb = await host('report', { seqId: lyrNew.id });
       await host('clearTracks', { seqId: lyrNew.id, video: lb.video.map(idx), audio: lb.audio.map(idx) });
+      if (logoTop >= 0 && lb.video.length < logoTop + 2) await host('addVideoTracks', { seqId: lyrNew.id, count: logoTop + 2 - lb.video.length });
       var mainNew = await host('cloneSequence', { name: settings.mainTemplate, newName: names.main });
       var mb = await host('report', { seqId: mainNew.id });
       await host('clearTracks', { seqId: mainNew.id, video: mb.video.map(idx), audio: mb.audio.map(idx) });
@@ -1190,7 +1204,7 @@
     tick('Converting captions to graphics');
     var landed = await upgradeCaptions(lyr, settings.lyricsTemplate);
     if (landed < 0) throw fail('Premiere did not convert the captions to graphics. Details are in the Log tab.');
-    await host('removeEmptyVideoTracks', { seqId: lyr.id });
+    if (logoTop < 0) await host('removeEmptyVideoTracks', { seqId: lyr.id });   // with logos the tracks keep the template's numbers
     if (menuIds['Sequence>Captions>Hide All Caption Tracks']) await menu('id', menuIds['Sequence>Captions>Hide All Caption Tracks']);
 
     // the batch now really contains the new songs: record it before the remaining steps
@@ -1442,7 +1456,7 @@
     }
     var L = intro ? Math.round(Number(intro.durTicks) / F) : 0;
     var titleTrack = intro ? intro.track : (wm ? wm.track + 1 : 1), need = Math.max(titleTrack, wm ? wm.track : 0) + 1;
-    if (lyricTrack < 0 || lyricTrack >= Math.min(titleTrack, wm ? wm.track : titleTrack)) throw fail('the lyrics are on V' + (lyricTrack + 1) + ', where the logo or title should go');
+    if (lyricTrack < 0 || lyricTrack === titleTrack || (wm && lyricTrack === wm.track)) throw fail('the lyrics are on V' + (lyricTrack + 1) + ', where the logo or title should go');
     var rep = await host('report', { seqId: lyr.id });
     if (rep.video.length < need) {
       var add = await host('addVideoTracks', { seqId: lyr.id, count: need - rep.video.length });
