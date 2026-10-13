@@ -773,28 +773,75 @@ LPFN.titleParts = function (a) {
 LPFN.copyClip = function (a) {
     var seq = lpSeqById(a.seqId), tpl = lpSeqByName(a.tplName), src = tpl.videoTracks[a.tplTrack].clips[a.tplIndex];
     if (!src || !src.projectItem) throw new Error('template clip not found on V' + (a.tplTrack + 1));
-    var track = seq.videoTracks[a.track], notes = [], added = [], aBefore = [], audioOn = [], i, k, tr, dst, q, qc;
-    var want = a.endTicks ? Number(a.endTicks) : Number(a.startTicks) + Number(src.end.ticks) - Number(src.start.ticks);
-    for (i = 0; i < seq.audioTracks.numTracks; i++) aBefore.push(seq.audioTracks[i].clips.numItems);
-    dst = lpPlace(track, src.projectItem, a.startTicks).clip;
-    try { dst.end = lpTime(want); } catch (e) { notes.push('end: ' + e); }
-    dst = lpFindClipAt(track, a.startTicks);
-    var own = lpCopyIntrinsics(src, dst, !!a.keys);
-    for (i = 0; i < own.length; i++) if (own[i].indexOf('not copied: ') !== 0) notes.push(own[i]);   // effects are copied below
-    try {
-        q = lpQeSeq(seq); qc = lpQeClipAt(q, a.track, a.startTicks);
-        if (qc) lpCopyEffects(src, dst, qc, !!a.keys, added, notes);
-        else if (src.components.numItems > 2) notes.push('effects not copied: clip not found in QE');
-    } catch (e2) { notes.push('effects: ' + e2); }
-    // sound the clip brought along is removed again, except on A1 where the songs are (reported instead)
-    for (i = 0; i < seq.audioTracks.numTracks; i++) {
-        tr = seq.audioTracks[i];
-        if (tr.clips.numItems <= (aBefore[i] || 0)) continue;
-        audioOn.push(i);
-        if (i === 0) continue;
-        for (k = tr.clips.numItems - 1; k >= 0; k--) if (String(tr.clips[k].start.ticks) === String(a.startTicks)) tr.clips[k].remove(false, false);
+    var track = seq.videoTracks[a.track], notes = [], added = [], i, k, tr, dst, q, qc, own, s0, pieces = 0, got;
+    var start = Number(a.startTicks), cursor = start;
+    var want = a.endTicks ? Number(a.endTicks) : start + Number(src.end.ticks) - Number(src.start.ticks);
+    // a source shorter than the stretch (a nest, a video) is repeated until the end is reached
+    while (cursor < want && pieces < 200) {
+        dst = lpPlace(track, src.projectItem, cursor).clip;
+        try { dst.end = lpTime(want); } catch (e) { notes.push('end: ' + e); }
+        dst = lpFindClipAt(track, cursor);
+        got = Number(dst.end.ticks);
+        own = lpCopyIntrinsics(src, dst, pieces === 0 && !!a.keys);
+        for (i = 0; i < own.length; i++) if (own[i].indexOf('not copied: ') !== 0) notes.push(own[i]);   // effects are copied below
+        try {
+            q = lpQeSeq(seq); qc = lpQeClipAt(q, a.track, String(cursor));
+            if (qc) lpCopyEffects(src, dst, qc, pieces === 0 && !!a.keys, pieces === 0 ? added : [], notes);
+            else if (src.components.numItems > 2) notes.push('effects not copied: clip not found in QE');
+        } catch (e2) { notes.push('effects: ' + e2); }
+        pieces++;
+        if (got <= cursor) break;
+        cursor = got;
     }
-    return { start: String(dst.start.ticks), end: String(dst.end.ticks), wantEnd: String(want), effects: added, audioOn: audioOn, notes: notes };
+    // sound the clip brought along on the tracks above A1 is removed again (A1 holds the songs: the panel checks it)
+    for (i = 1; i < seq.audioTracks.numTracks; i++) {
+        tr = seq.audioTracks[i];
+        for (k = tr.clips.numItems - 1; k >= 0; k--) {
+            s0 = Number(tr.clips[k].start.ticks);
+            if (s0 >= start && s0 < want) tr.clips[k].remove(false, false);
+        }
+    }
+    return { start: String(start), end: String(cursor), wantEnd: String(want), pieces: pieces, effects: added, notes: notes };
+};
+
+// What lies on an audio track at a time: the song's file and where it starts and ends.
+LPFN.audioAt = function (a) {
+    var seq = lpSeqById(a.seqId), c = lpFindClipAt(seq.audioTracks[a.track], a.startTicks), mp = '';
+    if (!c) return { found: false };
+    try { mp = c.projectItem.getMediaPath(); } catch (e) {}
+    return { found: true, path: String(mp || ''), start: String(c.start.ticks), end: String(c.end.ticks) };
+};
+
+// Removes from an audio track every clip that is not one of the given files (what a logo clip left behind).
+LPFN.cleanAudio = function (a) {
+    var seq = lpSeqById(a.seqId), tr = seq.audioTracks[a.track], keep = {}, i, mp, n = 0;
+    for (i = 0; i < a.keep.length; i++) keep[lpNormPath(a.keep[i])] = true;
+    for (i = tr.clips.numItems - 1; i >= 0; i--) {
+        mp = '';
+        try { mp = tr.clips[i].projectItem.getMediaPath(); } catch (e) {}
+        if (!mp || !keep[lpNormPath(mp)]) { tr.clips[i].remove(false, false); n++; }
+    }
+    return { removed: n };
+};
+
+// Fades a clip in over the given number of frames (opacity keyframes from its first frame).
+LPFN.fadeIn = function (a) {
+    var seq = lpSeqById(a.seqId), c = lpFindClipAt(seq.videoTracks[a.track], a.startTicks), F = Number(seq.timebase) || Number(LP_FRAME_FALLBACK);
+    if (!c) return { done: false };
+    var j, k, comp, p = null, t0, form;
+    for (j = 0; j < c.components.numItems; j++) {
+        comp = c.components[j];
+        if (comp.matchName === 'AE.ADBE Opacity') {
+            for (k = 0; k < comp.properties.numItems; k++) if (comp.properties[k].displayName === 'Opacity') p = comp.properties[k];
+            if (!p) p = comp.properties[0];
+        }
+    }
+    if (!p) return { done: false };
+    if (!p.isTimeVarying()) p.setTimeVarying(true);
+    t0 = Number(c.inPoint.ticks);
+    form = lpAddKey(p, t0, 0, -1);
+    form = lpAddKey(p, t0 + a.frames * F, 100, form);
+    return { done: form >= 0 };
 };
 
 // Switches off (or on again) the clips of a track that are on screen at the given time.

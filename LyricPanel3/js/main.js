@@ -1148,7 +1148,10 @@
 
     // 3. one combined SRT for the new songs, re-wrapped for this channel's font
     tick('Preparing lyrics');
-    var measure = makeMeasure(), maxPx = tpl.w * BOX_W / 100;
+    // 1% under the box, for rows that measure a pixel or two differently in Premiere. A row Premiere wraps by itself
+    // (a third row) means the Size in Settings is smaller than the text style's: Dance Pilot was set to 70 with a
+    // style of 73 (2026-10-13).
+    var measure = makeMeasure(), maxPx = tpl.w * BOX_W / 100 * 0.99;
     var lines = [], n = 0, added = [], split = 0, rewrapped = 0;
     picked.forEach(function (song) {
       var prevEnd = 0; song.lyricCount = 0; song.firstLyric = undefined;
@@ -1260,8 +1263,16 @@
   // the logo alone, or nothing. Every song gets a thumbnail: a frame of the main sequence with its title on.
   // Premiere cannot type into a title, so the title card is a picture drawn here in the channel font.
   // How a channel's title looks (1920x1080): measured on the user's own thumbnails. Channels not listed get no titles yet.
+  // font: the title font; sx / sy: the text layer's scale in the template; artistSize: never changes; track: tracking
+  // (1/1000 em); maxW x maxH: how large the title may get; gap: title to artist; mid + drift x title height: where
+  // the middle of the title sits; floor: the artist line never goes below this, so it stays clear of the watermark;
+  // fadeIn: frames the title fades in over.
   var TITLE_LOOKS = {
-    'Dance Pilot': { sx: 0.9, sy: 1.2, artistSize: 97, maxW: 1780, maxH: 357, gap: 55, cx: 957, mid: 459, drift: 0.1, caps: true, titleColour: '#ffffff', artistColour: '#ffffff' }
+    'Dance Pilot':   { font: 'Titan One', sx: 0.9, sy: 1.2, artistSize: 97, track: 0, maxW: 1780, maxH: 357, gap: 55, cx: 957, mid: 459, drift: 0.1, floor: 812, caps: true, titleColour: '#ffffff', artistColour: '#ffffff', fadeIn: 0 },
+    'Brit Tunes':    { font: 'Lemon Mocktail', sx: 1, sy: 1, artistSize: 110, track: 0, maxW: 1810, maxH: 305, gap: 54, cx: 956, mid: 459, drift: 0.094, floor: 775, caps: true, titleColour: '#ffffff', artistColour: '#ffffff', fadeIn: 0 },
+    'Rock Vivo':     { font: 'Piedra', sx: 1, sy: 1, artistSize: 100, track: 0, maxW: 1800, maxH: 358, gap: 50, cx: 958, mid: 467, drift: 0, floor: 780, caps: true, titleColour: '#ffffff', artistColour: '#ffffff', fadeIn: 6 },
+    'TikTok Melody': { font: 'Bakso Sapi', sx: 1, sy: 1, artistSize: 100, track: -30, maxW: 1800, maxH: 316, gap: 40, cx: 956, mid: 468, drift: 0.09, floor: 770, caps: true, titleColour: '#ffffff', artistColour: '#fad48d', fadeIn: 0 },
+    'Rock Tunes':    { font: 'DK Midnight Chalker', sx: 1, sy: 1, artistSize: 120, track: 0, maxW: 1790, maxH: 420, gap: 53, cx: 953, mid: 455, drift: 0.08, floor: 870, caps: true, titleColour: '#ffffff', artistColour: '#fec300', fadeIn: 0 }
   };
   var TITLE_MIN = 48;           // frames (2 s) a title must be able to stay, or the song gets none
   function titleLook() { return TITLE_LOOKS[projectKey().replace(/[_ ]\d+$/, '')] || null; }
@@ -1297,32 +1308,48 @@
   // The title card as a PNG the size of the frame (a Buffer).
   // The title is as large as fits maxW x maxH; the artist line keeps its size, and loses artists from the end if too wide.
   function drawTitle(names, look, w, h) {
-    var m = [null, names.artist, names.title];
     var c = document.createElement('canvas'); c.width = w; c.height = h;
-    var g = c.getContext('2d'), font = 'px "' + settings.font + '"';
+    var g = c.getContext('2d'), font = 'px "' + (look.font || settings.font) + '"';
     g.scale(w / 1920, w / 1920); g.textBaseline = 'alphabetic';
+    // where the ink of a text lies at a font size: width, height, and where each letter goes (tracking moves every
+    // letter; the font's own kerning is kept by measuring pairs)
+    // The height is taken without accents: an accent must not push its line down or make the title smaller.
     function ink(text, size) {
       g.font = size + font;
-      var t = g.measureText(text);
-      return { l: t.actualBoundingBoxLeft, a: t.actualBoundingBoxAscent, w: t.actualBoundingBoxLeft + t.actualBoundingBoxRight, h: t.actualBoundingBoxAscent + t.actualBoundingBoxDescent };
+      var t, v, i, x = 0, l = 1e9, r = -1e9, a = 0, d = -1e9, at = [];
+      function bare(x) { return x.normalize('NFD').replace(/[\u0300-\u036f]/g, '') || x; }
+      if (!look.track) {
+        t = g.measureText(text); v = g.measureText(bare(text));
+        return { l: t.actualBoundingBoxLeft, a: v.actualBoundingBoxAscent, w: t.actualBoundingBoxLeft + t.actualBoundingBoxRight, h: v.actualBoundingBoxAscent + v.actualBoundingBoxDescent, at: null };
+      }
+      for (i = 0; i < text.length; i++) {
+        t = g.measureText(text[i]); v = g.measureText(bare(text[i])); at.push(x);
+        l = Math.min(l, x - t.actualBoundingBoxLeft); r = Math.max(r, x + t.actualBoundingBoxRight);
+        a = Math.max(a, v.actualBoundingBoxAscent); d = Math.max(d, v.actualBoundingBoxDescent);
+        x += (i + 1 < text.length ? g.measureText(text.substr(i, 2)).width - g.measureText(text[i + 1]).width : t.width) + look.track * size / 1000;
+      }
+      return { l: -l, a: a, w: r - l, h: a + d, at: at };
     }
     function put(text, size, top, colour) {
-      var i = ink(text, size);
+      var i = ink(text, size), k;
       g.save();
       g.translate(look.cx - i.w * look.sx / 2, top); g.scale(look.sx, look.sy);
-      g.fillStyle = colour; g.fillText(text, i.l, i.a);
+      g.fillStyle = colour;
+      if (!i.at) g.fillText(text, i.l, i.a);
+      else for (k = 0; k < text.length; k++) g.fillText(text[k], i.l + i.at[k], i.a);
       g.restore();
-      return i.h * look.sy;
     }
     function shown(t) { return look.caps ? t.toUpperCase() : t; }
-    var title = shown(m[2].trim()), parts = m[1].trim().split(/(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+and\s+)/i), artist;
+    var title = shown(names.title.trim()), parts = names.artist.trim().split(/(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+and\s+)/i), artist;
     for (;;) {
       artist = shown(parts.join(''));
       if (parts.length <= 1 || ink(artist, look.artistSize).w * look.sx <= look.maxW) break;
       parts = parts.slice(0, -2);
     }
-    var probe = ink(title, 400), size = Math.min(look.maxW / (probe.w * look.sx / 400), look.maxH / (probe.h * look.sy / 400));
-    var th = probe.h * look.sy * size / 400, top = look.mid + look.drift * th - th / 2;
+    var probe = ink(title, 400), ah = ink(artist, look.artistSize).h * look.sy;
+    // as large as fits the width and the height, and never so tall that the artist line drops below the floor
+    var th = Math.min(look.maxW / (probe.w * look.sx) * probe.h * look.sy, look.maxH, (look.floor - ah - look.gap - look.mid) / (0.5 + look.drift));
+    var size = 400 * th / (probe.h * look.sy), top = look.mid + look.drift * th - th / 2;
     put(title, size, top, look.titleColour);
     put(artist, look.artistSize, top + th + look.gap, look.artistColour);
     return Buffer.from(c.toDataURL('image/png').split(',')[1], 'base64');
@@ -1386,13 +1413,31 @@
   async function addTitles(picked, lyr, main, lyricTrack, tpl) {
     var look = titleLook(), out = { problems: [], done: '' }, i, s;
     if (!look) { log('titles: this channel has no title look yet, so no logos, titles or thumbnails'); return out; }
+    if (!fontReady(look.font, 100)) throw fail('the title font "' + look.font + '" is not installed');
     status('Adding logos and titles');
     var parts = await host('titleParts', { tplName: settings.lyricsTemplate });
     log('titles: template has ' + (parts.intro ? 'intro "' + parts.intro.name + '" on V' + (parts.intro.track + 1) : 'no intro') + ', ' + (parts.watermark ? 'watermark "' + parts.watermark.name + '" on V' + (parts.watermark.track + 1) : 'no watermark'));
     var wm = parts.watermark, intro = parts.intro;
-    // a clip with sound (or a nest, which always has an audio side) is left out rather than risk the songs on A1
-    if (wm && (wm.nest || await hasSound(wm.path))) { out.problems.push('The watermark "' + wm.name + '" was not added: it is a nest or has sound'); wm = null; }
-    if (intro && (intro.nest || await hasSound(intro.path))) { out.problems.push('The intro logo "' + intro.name + '" was not added: it is a nest or has sound'); intro = null; }
+    // A nest or a video with sound brings an audio clip along. After each such clip every new song on A1 is checked
+    // and, if it was touched, placed again; what the clip left on A1 between the songs is removed.
+    var wmLoud = !!wm && (wm.nest || await hasSound(wm.path)), introLoud = !!intro && (intro.nest || await hasSound(intro.path));
+    async function songsIntact() {
+      var k, song, au, hurt = 0;
+      for (k = 0; k < picked.length; k++) {
+        song = picked[k];
+        au = await host('audioAt', { seqId: lyr.id, track: 0, startTicks: song.startFrame * F });
+        if (au.found && fwd(au.path).toLowerCase() === fwd(song.audio).toLowerCase() && Math.abs(Number(au.end) - (song.startFrame + song.audioFrames) * F) <= F) continue;
+        hurt++;
+        await host('placeAudio', { seqId: lyr.id, path: song.audio, startTicks: song.startFrame * F, track: 0 });
+        au = await host('audioAt', { seqId: lyr.id, track: 0, startTicks: song.startFrame * F });
+        if (!(au.found && fwd(au.path).toLowerCase() === fwd(song.audio).toLowerCase())) out.problems.push('Check the audio of "' + song.name + '" in the lyrics sequence');
+      }
+      if (hurt) {
+        var keep = (batch ? batch.songs : []).concat(picked).map(function (x) { return x.audio; });
+        var cl = await host('cleanAudio', { seqId: lyr.id, track: 0, keep: keep });
+        log('titles: a logo clip put sound on A1: ' + hurt + ' songs placed again, ' + cl.removed + ' stray clips removed');
+      }
+    }
     var L = intro ? Math.round(Number(intro.durTicks) / F) : 0;
     var titleTrack = intro ? intro.track : (wm ? wm.track + 1 : 1), need = Math.max(titleTrack, wm ? wm.track : 0) + 1;
     if (lyricTrack < 0 || lyricTrack >= Math.min(titleTrack, wm ? wm.track : titleTrack)) throw fail('the lyrics are on V' + (lyricTrack + 1) + ', where the logo or title should go');
@@ -1431,15 +1476,17 @@
       if (wm) {
         r = await host('copyClip', { seqId: lyr.id, tplName: settings.lyricsTemplate, tplTrack: wm.track, tplIndex: wm.index, track: wm.track, startTicks: t0, endTicks: (s.startFrame + s.audioFrames) * F, keys: !intro || s.hasLogo });
         notes = notes.concat(r.notes);
-        if (r.audioOn.indexOf(0) >= 0) out.problems.push('The watermark put sound on A1 at "' + s.name + '": check that song\'s audio');
+        if (r.end !== r.wantEnd) out.problems.push('The watermark does not reach the end of "' + s.name + '"');
+        if (wmLoud) await songsIntact();
       }
       if (s.hasLogo) {
         r = await host('copyClip', { seqId: lyr.id, tplName: settings.lyricsTemplate, tplTrack: intro.track, tplIndex: intro.index, track: intro.track, startTicks: t0, keys: true });
         notes = notes.concat(r.notes); logos++;
-        if (r.audioOn.indexOf(0) >= 0) out.problems.push('The intro logo put sound on A1 at "' + s.name + '": check that song\'s audio');
+        if (introLoud) await songsIntact();
       }
       if (s.titlePng && room >= TITLE_MIN) {
         await host('placeVideo', { seqId: lyr.id, path: s.titlePng, track: titleTrack, startTicks: (s.startFrame + s.lead) * F, endTicks: (s.startFrame + first) * F, scaleToFrame: false });
+        if (look.fadeIn) await host('fadeIn', { seqId: lyr.id, track: titleTrack, startTicks: (s.startFrame + s.lead) * F, frames: look.fadeIn });
         s.titleAt = s.lead + Math.min(24, Math.floor(room / 2)); titles++;
       }
       log('titles: ' + s.name + ': first lyric at ' + (first / FPS).toFixed(2) + ' s -> ' + (s.hasLogo ? 'logo' : 'no logo') + ', ' + (s.titleAt >= 0 ? 'title for ' + (room / FPS).toFixed(2) + ' s' : 'no title'));
