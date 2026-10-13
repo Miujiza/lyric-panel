@@ -501,7 +501,7 @@
   var checks = {};              // audio path -> what LRCLIB has for it, kept while the panel is open
   var checkRun = 0, checking = null;   // checking: { done, total } while the folder is being looked up
   var audioCtx = null;
-  // Where each SRT in a songs folder came from: 'lrclib', 'differ' (LRCLIB, but its uploads disagree on the line times),
+  // Where each SRT in a songs folder came from: 'library' (the user's own Lyric Library), 'lrclib', 'differ' (LRCLIB, but its uploads disagree on the line times),
   // 'stretched' (LRCLIB timing of the normal-speed version) or
   // 'whisper' (timed on this PC). The last three are the ones to check: they are built last and get their own colour.
   var SOURCES = path.join(DATA, 'sources.json'), sources = {};
@@ -581,8 +581,8 @@
     return out;
   }
   // What LRCLIB has for one song: the title, the artist and the length must all agree (rules in lrc.js).
-  async function lookup(s) {
-    var seconds = await audioSeconds(s.audio), res = null, n;
+  async function lookup(s, seconds) {
+    var res = null, n;
     for (n = 0; n < 2; n++) {       // "Artist - Title", then the other way round
       var info = LRC.parseName(s.name, n === 1);
       if (!info) break;
@@ -590,11 +590,11 @@
       if (!res || r.state !== 'notfound') res = r;
       if (r.state !== 'notfound') { setOrder(s.audio, n === 1); break; }
     }
-    res = res || { state: 'notfound', why: 'The file name is not "Artist - Title"' };
+    res = res || { state: 'notfound', why: 'The file name is not "Artist - Title", so LRCLIB was not asked' };
     res.seconds = seconds;
     return res;
   }
-  function fetchable(s) { return !s.srt && !!s.check && (s.check.state === 'found' || s.check.state === 'scaled'); }
+  function fetchable(s) { return !s.srt && !!s.check && (s.check.state === 'found' || s.check.state === 'scaled' || s.check.state === 'library'); }
   // LRCLIB has no timing for it: the song is timed on this PC from its lyrics
   function local(s) { return !s.srt && !s.problem && !!s.check && (s.check.state === 'notfound' || s.check.state === 'lyricsonly'); }
   function workDir(s) { return WORK + '/' + s.name; }
@@ -673,9 +673,14 @@
     for (i = 0; i < todo.length; i++) {
       s = todo[i];
       try {
-        s.check = errors >= 2 ? { state: 'error', why: 'LRCLIB could not be reached' } : await lookup(s);
+        // the user's own corrected SRT first, then LRCLIB
+        var seconds = await audioSeconds(s.audio), own = fromLibrary(s, seconds);
+        if (own && own.miss) log('library: ' + s.name + ': ' + own.miss);
+        if (own && own.state) { own.seconds = seconds; s.check = own; }
+        else s.check = errors >= 2 ? { state: 'error', why: 'LRCLIB could not be reached' } : await lookup(s, seconds);
         if (s.check.state !== 'error') { errors = 0; checks[s.audio] = s.check; }
-        log('lrclib: ' + s.name + ': ' + s.check.state + (s.check.entry ? ' (entry ' + s.check.entry.id + ', ' + LRC.mmss(s.check.entry.duration) + (s.check.scale !== 1 ? ', stretched x' + s.check.scale.toFixed(3) : '') + ')' : '') + (s.check.why ? ' - ' + s.check.why : ''));
+        if (s.check.state === 'library') log('library: ' + s.name + ': found "' + path.basename(s.check.file) + '" (' + s.check.cues + ' lyrics)');
+        else log('lrclib: ' + s.name + ': ' + s.check.state + (s.check.entry ? ' (entry ' + s.check.entry.id + ', ' + LRC.mmss(s.check.entry.duration) + (s.check.scale !== 1 ? ', stretched x' + s.check.scale.toFixed(3) : '') + ')' : '') + (s.check.why ? ' - ' + s.check.why : ''));
       } catch (e) {
         errors++;
         s.check = { state: 'error', why: e.message };
@@ -689,15 +694,26 @@
     }
     checking = null;
     renderSongs();
-    var f = songs.filter(fetchable).length, m = songs.filter(local).length;
-    if (!busy) status(f + (f === 1 ? ' song has' : ' songs have') + ' timed lyrics on LRCLIB' + (m ? ', ' + m + ' to time on this PC' : '') + '.', 0);
+    var own = songs.filter(function (s) { return fetchable(s) && s.check.state === 'library'; }).length, f = songs.filter(fetchable).length - own, m = songs.filter(local).length;
+    var parts = [];
+    if (own) parts.push(own + (own === 1 ? ' song is' : ' songs are') + ' in the Lyric Library');
+    if (f || !own) parts.push(f + (f === 1 ? ' song has' : ' songs have') + ' timed lyrics on LRCLIB');
+    if (m) parts.push(m + ' to time on this PC');
+    if (!busy) status(parts.join(', ') + '.', 0);
   }
-  // Writes the SRT next to every ticked song LRCLIB has.
+  // Writes the SRT next to every ticked song the Lyric Library or LRCLIB has.
   async function fetchSrts() {
     var root = settings.songsDir2, got = 0, failed = [];
     if (checking) throw fail('Still checking LRCLIB. Wait until the list is complete.');
     songs.filter(function (s) { return fetchable(s) && s.on; }).forEach(function (s) {
       try {
+        if (s.check.state === 'library') {
+          fs.writeFileSync(root + '/' + s.name + '.srt', fs.readFileSync(s.check.file, 'utf8'), { encoding: 'utf8', flag: 'wx' });
+          setSource(root + '/' + s.name + '.srt', 'library');
+          got++;
+          log('fetch: ' + s.name + ': ' + s.check.cues + ' lyrics from the Lyric Library');
+          return;
+        }
         var srt = LRC.toSrt(s.check.entry.syncedLyrics, s.check.scale, s.check.seconds), out = root + '/' + s.name + '.srt';
         if (srt.count < 3) throw new Error('the LRCLIB entry has almost no lyrics');
         fs.writeFileSync(out, srt.text, { encoding: 'utf8', flag: 'wx' });
@@ -896,7 +912,7 @@
         if (!s.cues) s.problem = 'SRT has no lyrics';
       } else {
         // a name LRCLIB cannot be asked about goes straight to the timing on this PC
-        s.check = checks[s.audio] || (LRC.parseName(name) ? null : { state: 'notfound', why: 'The file name is not "Artist - Title", so LRCLIB was not asked' });
+        s.check = checks[s.audio] || null;
       }
       s.ready = !!(s.srt && s.cues);
       s.on = s.ready || fetchable(s) || timeable(s);
@@ -969,6 +985,7 @@
         : s.ready ? '<span class="chip ok"' + (toCheck(s) ? ' title="Its lyrics get the check colour on the timeline"' : '') + '>READY</span>'
         : s.problem ? '<span class="chip bad">' + esc(s.problem.toUpperCase()) + '</span>'
         : !c ? '<span class="chip in">' + (checking ? 'CHECKING' : 'NOT CHECKED') + '</span>'
+        : c.state === 'library' ? '<span class="chip ok" title="Your own saved SRT in the Lyric Library is used: ' + esc(path.basename(c.file)) + '">IN LIBRARY</span>'
         : c.state === 'found' && c.differ ? '<span class="chip warn" title="The uploads on LRCLIB disagree on the line times. The timing in the middle of them is used: check it.">ON LRCLIB (UPLOADS DIFFER)</span>'
         : c.state === 'found' ? '<span class="chip ok" title="Same title, artist and length on LRCLIB">ON LRCLIB</span>'
         : c.state === 'scaled' ? '<span class="chip warn" title="LRCLIB only has the normal-speed version. Its timing is stretched to fit this one: check it.">STRETCHED</span>'
@@ -988,7 +1005,7 @@
     var two = songs.some(group), html = '';
     [0, 1].forEach(function (g) {
       var rows = songs.map(function (s, i) { return group(s) === g ? row(s, i) : ''; }).join('');
-      if (rows) html += (two ? '<div class="group">' + (g ? 'Timed on this PC' : 'From LRCLIB') + '</div>' : '') + rows;
+      if (rows) html += (two ? '<div class="group">' + (g ? 'Timed on this PC' : 'From the library and LRCLIB') + '</div>' : '') + rows;
     });
     list.innerHTML = html;
     var ready = songs.filter(function (s) { return s.ready; }).length, on = songs.filter(function (s) { return s.on && !inB(s); }).length;
@@ -1930,7 +1947,35 @@
     function p(n, w) { return ('000' + n).slice(-w); }
     return p(h, 2) + ':' + p(m, 2) + ':' + p(s, 2) + ',' + p(ms % 1000, 3);
   }
-  function libraryDir() { return settings.srtDir || (process.env.USERPROFILE || '').replace(/\\/g, '/') + '/Documents/Lyric Library'; }
+  // The Lyric Library is ONE folder for all channels: the SRTs saved from the timeline after the user's corrections.
+  // A new song is looked up there first (fromLibrary), then on LRCLIB, then timed on this PC.
+  // lyric-library.json: { dir, lengths: { '<file name in lower case>': seconds of the song it was saved from } }
+  var LIBFILE = path.join(DATA, 'lyric-library.json'), LIB_TOL = 1.0;
+  function loadLibrary() {
+    try { var l = JSON.parse(fs.readFileSync(LIBFILE, 'utf8')); return { dir: l.dir || '', lengths: l.lengths || {} }; } catch (e) { return { dir: '', lengths: {} }; }
+  }
+  function saveLibrary(l) { try { fs.writeFileSync(LIBFILE, JSON.stringify(l), 'utf8'); } catch (e) { log('could not save the library record: ' + e); } }
+  function libraryDir() { return loadLibrary().dir || settings.srtDir || (process.env.USERPROFILE || '').replace(/\\/g, '/') + '/Documents/Lyric Library'; }
+  // The library's SRT for this song, if it has one of the same recording.
+  // -> { state: 'library', file, cues } | { miss: why it was not used } | null
+  function fromLibrary(s, seconds) {
+    var lib = loadLibrary(), dir = libraryDir(), names, want = (s.name + '.srt').toLowerCase(), miss = '', i;
+    try { names = fs.readdirSync(dir).filter(function (n) { return /\.srt$/i.test(n); }); } catch (e) { return null; }
+    var cands = names.filter(function (n) { return n.toLowerCase() === want; });
+    if (!cands.length) cands = names.filter(function (n) { return LRC.sameSong(s.name, n.replace(/\.srt$/i, '')); });
+    for (i = 0; i < cands.length; i++) {
+      var file = dir + '/' + cands[i], cues, len = lib.lengths[cands[i].toLowerCase()];
+      try { cues = parseSrt(file); } catch (e) { continue; }
+      if (cues.length < 3) continue;
+      // the same recording: the length it was saved from, or for an older file at least no lyric after the end of this mp3
+      if (seconds && (len ? Math.abs(len - seconds) > LIB_TOL : cues[cues.length - 1].end > seconds + 0.5)) {
+        miss = '"' + cands[i] + '" in the Lyric Library is for a recording of another length' + (len ? ' (' + LRC.mmss(len) + ', this file is ' + LRC.mmss(seconds) + ')' : '');
+        continue;
+      }
+      return { state: 'library', file: file, cues: cues.length };
+    }
+    return miss ? { miss: miss } : null;
+  }
   // Writes one SRT per song from the lyrics as they now are on the timeline, into the folder chosen on the Export tab.
   // The SRTs in the song folders are never touched.
   async function saveSrts() {
@@ -1952,6 +1997,7 @@
       a.cues.push(l);
     });
     if (!fs.existsSync(lib)) fs.mkdirSync(lib, { recursive: true });
+    var lengths = {};
     got.songs.forEach(function (a) {
       var stem = a.name.replace(/\.[^.]+$/, '');
       var known = batch.songs.filter(function (b) { return b.startFrame * F === a.s; })[0] || batch.songs.filter(function (b) { return path.basename(b.audio) === a.name || b.name === stem; })[0];
@@ -1964,10 +2010,14 @@
         return (++n) + '\r\n' + plainSrtTime(sf) + ' --> ' + plainSrtTime(Math.max(ef, sf + 1)) + '\r\n' + rows.join('\r\n') + '\r\n';
       }).join('\r\n');
       fs.writeFileSync(lib + '/' + name + '.srt', text, 'utf8');
+      if (known && known.audioFrames) lengths[(name + '.srt').toLowerCase()] = Math.round(known.audioFrames / FPS * 1000) / 1000;
       done++;
       log('save srt: ' + name + ': ' + n + ' lyrics');
     });
     if (stray) log('save srt: ' + stray + ' lyrics sit before the first song and were left out');
+    var rec = loadLibrary();
+    Object.keys(lengths).forEach(function (k) { rec.lengths[k] = lengths[k]; });
+    saveLibrary(rec);
     if (done && !skipped.length) { batch.srtsFor = batchKey(batch); saveBatches(); }
     exStatus('Saved ' + done + (done === 1 ? ' SRT' : ' SRTs') + ' to ' + lib + (skipped.length ? '. Skipped: ' + skipped.join(', ') + ' (see Log)' : '.'), 1, skipped.length > 0);
   }
@@ -2176,7 +2226,7 @@
   $('pickSrt').onclick = function () {
     if (busy) return;
     var d = pickFolder('Choose the folder to save the SRTs in', fs.existsSync(libraryDir()) ? libraryDir() : (process.env.USERPROFILE || '').replace(/\\/g, '/') + '/Documents');
-    if (d) { settings.srtDir = d; saveSettings(); renderExport(); }
+    if (d) { settings.srtDir = d; saveSettings(); var rec = loadLibrary(); rec.dir = d; saveLibrary(rec); renderExport(); }
   };
   $('exportPreset').onchange = function () { settings.exportPreset = $('exportPreset').value; saveSettings(); };
   $('exportList').onclick = run(async function (ev) {

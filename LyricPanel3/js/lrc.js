@@ -101,6 +101,11 @@ window.LRC = (function () {
     return { artist: artist, artistFirst: first, title: title, a: a, searchTitle: title.replace(/[\(\[\{][^\)\]\}]*[\)\]\}]/g, ' ').replace(/\s+/g, ' ').trim() || title };
   }
 
+  // Two file names ("Artist - Title") of the same recording: an artist in common, the same title, the same version words.
+  function sameSong(x, y) {
+    var a = parseName(x), b = parseName(y);
+    return !!a && !!b && sameArtist(a.artist, b.artist) && sameTitle(a.a, b.a) && sameKinds(a.a, b.a);
+  }
   function timedLines(synced) { return parseLrc(synced).filter(function (l) { return l.text; }).length; }
   function median(v) { v = v.slice().sort(function (x, y) { return x - y; }); return v.length ? (v[(v.length - 1) >> 1] + v[v.length >> 1]) / 2 : 0; }
 
@@ -283,5 +288,5 @@ window.LRC = (function () {
     return { count: cues.length, text: cues.map(function (c, n) { return (n + 1) + '\n' + stamp(c.start) + ' --> ' + stamp(c.end) + '\n' + c.rows.join('\n') + '\n'; }).join('\n') };
   }
 
-  return { norm: norm, analyse: analyse, displayTitle: displayTitle, parseName: parseName, sameArtist: sameArtist, decide: decide, parseLrc: parseLrc, toCues: toCues, toSrt: toSrt, mmss: mmss };
+  return { norm: norm, analyse: analyse, displayTitle: displayTitle, parseName: parseName, sameArtist: sameArtist, sameSong: sameSong, decide: decide, parseLrc: parseLrc, toCues: toCues, toSrt: toSrt, mmss: mmss };
 })();

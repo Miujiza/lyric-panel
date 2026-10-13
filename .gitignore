@@ -33,3 +33,6 @@ example.txt
 Title Test/*.jpg
 Title Test/*.png
 /*.PNG
+
+# the user's own corrected SRTs (lyric text): looked up first by the panel, never in git
+Lyric Library/

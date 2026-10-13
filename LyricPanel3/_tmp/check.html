@@ -19,6 +19,12 @@
   };
   var SONGS = Object.keys(LEN).concat(['Cults - Gilded Lily.srt']);
   var srt = '1\n00:00:08,383 --> 00:00:16,057\nfirst row\nsecond row\n\n2\n00:00:17,000 --> 00:00:20,000\nanother\n';
+  // the Lyric Library: one saved from the same recording, one from another length, one older file with no length on record
+  // (name in other capitals), one named a little differently, and a sub-folder that must be ignored
+  var LIB = ['Kodaline - The One.srt', 'Megara - Truco o trato.srt', 'WUICHO KUN - Llora.srt', 'Sia - Unstoppable [R3HAB Remix].srt', 'Pipeline Tests'];
+  var srt3 = '1\n00:00:08,383 --> 00:00:16,057\nfirst row\n\n2\n00:00:17,000 --> 00:00:20,000\nanother\n\n3\n00:00:21,000 --> 00:00:24,000\nthird\n';
+  LIB.forEach(function (n) { if (/srt$/.test(n)) files['C:/lib/' + n] = srt3; });
+  files['C:/appdata/LyricPanel/lyric-library.json'] = JSON.stringify({ dir: 'C:/lib', lengths: { 'kodaline - the one.srt': 233.4, 'megara - truco o trato.srt': 150 } });
   function leaf(p) { return p.split('/').pop(); }
   var fakeFs = {
     existsSync: function (p) { return files[p] !== undefined || p === 'C:/songs' || p === 'C:/dev/_tmp' || p === 'C:/appdata/LyricPanel' || (p.indexOf('C:/songs/') === 0 && SONGS.indexOf(p.slice(9)) >= 0); },
@@ -28,7 +34,7 @@
     copyFileSync: function () {},
     readFileSync: function (p) { if (files[p] !== undefined) return files[p]; if (/\.srt$/.test(p)) return srt; throw new Error('ENOENT ' + p); },
     statSync: function (p) { return { isDirectory: function () { return !/[.]\w{2,4}$/.test(p); } }; },
-    readdirSync: function (p) { return p === 'C:/songs' ? SONGS.slice() : []; }
+    readdirSync: function (p) { return p === 'C:/songs' ? SONGS.slice() : p === 'C:/lib' ? LIB.slice() : []; }
   };
   var mods = {
     fs: fakeFs,
