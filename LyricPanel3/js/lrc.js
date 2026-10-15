@@ -106,6 +106,7 @@ window.LRC = (function () {
     var a = parseName(x), b = parseName(y);
     return !!a && !!b && sameArtist(a.artist, b.artist) && sameTitle(a.a, b.a) && sameKinds(a.a, b.a);
   }
+  function lastLine(synced) { var l = parseLrc(synced).filter(function (x) { return x.text; }); return l.length ? l[l.length - 1].t : 0; }
   function timedLines(synced) { return parseLrc(synced).filter(function (l) { return l.text; }).length; }
   function median(v) { v = v.slice().sort(function (x, y) { return x - y; }); return v.length ? (v[(v.length - 1) >> 1] + v[v.length >> 1]) / 2 : 0; }
 
@@ -132,11 +133,14 @@ window.LRC = (function () {
     list.forEach(function (e, i) {
       var sum = 0, n = 0;
       list.forEach(function (o, j) { var g = i === j ? null : timeGap(lines[i], lines[j]); if (g !== null) { sum += Math.min(g, 5); n++; } });
-      if (n >= 2 && (mid < 0 || sum / n < low - 1e-9)) { mid = i; low = sum / n; }
+      if (n >= 1 && (mid < 0 || sum / n < low - 1e-9)) { mid = i; low = sum / n; }
     });
     if (mid <= 0) return list[0];
+    // the nearest length stays when it agrees with that timing; also when it merely cannot be compared (other line breaks),
+    // unless it can be compared with none of the uploads at all: then its times are seconds away from all of them
     var first = timeGap(lines[0], lines[mid]);
-    if (first === null || first <= AGREE) return list[0];
+    var alone = lines.every(function (l, j) { return j === 0 || timeGap(lines[0], l) === null; });
+    if (first === null ? !alone : first <= AGREE) return list[0];
     for (var i = 1; i < mid; i++) { var g = timeGap(lines[i], lines[mid]); if (g !== null && g <= AGREE) return list[i]; }
     return list[mid];
   }
@@ -160,8 +164,15 @@ window.LRC = (function () {
     near.sort(function (x, y) { return Math.abs(x.duration - seconds) - Math.abs(y.duration - seconds); });
     var synced = near.filter(function (e) { return e.syncedLyrics && timedLines(e.syncedLyrics) >= 3; });
     if (synced.length) {
+      // an upload with a line that starts after this mp3 has ended was timed on another cut (e.g. one with a longer intro)
+      var nearest = synced[0], fits = synced.filter(function (e) { return lastLine(e.syncedLyrics) <= seconds - 0.5; });
+      if (fits.length) synced = fits;
       var best = agreed(synced), found = { state: 'found', entry: best, scale: 1, others: synced.length - 1 };
-      if (best !== synced[0]) found.differ = true, found.why = 'The uploads disagree on the line times: entry ' + synced[0].id + ' has the nearest length but stands apart from the others';
+      if (best !== nearest) {
+        found.differ = true;
+        found.why = 'The uploads disagree on the line times: entry ' + nearest.id + ' has the nearest length but '
+          + (fits.indexOf(nearest) < 0 ? 'has lyrics after the end of this mp3' : 'stands apart from the others');
+      }
       return found;
     }
 

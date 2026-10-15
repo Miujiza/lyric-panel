@@ -538,20 +538,32 @@
     });
   }
   // null for "LRCLIB has nothing" (404); an error only when LRCLIB could not be reached
-  // LRCLIB is a free service and now and then answers "busy" (503): a few patient retries before giving up
+  // LRCLIB's rules (lrclib.net/docs, read 2026-10-15): requests one after another with 200-500 ms between them, and on
+  // "too many requests" (429) or "busy" (503) wait at least the seconds its Retry-After header gives, or it may ban the client.
+  // It publishes no fixed number of requests per minute.
   async function getJson(url) {
-    var waits = [1500, 3000, 6000], n;
+    var waits = [1500, 3000, 6000, 12000], n;
     for (n = 0; ; n++) {
       try { return await getJsonOnce(url); }
-      catch (e) { if (n >= waits.length) throw e; await sleep(waits[n]); }
+      catch (e) {
+        if (n >= waits.length) throw e;
+        if (e.retryAfter) log('lrclib: ' + e.message + ', waiting ' + e.retryAfter + ' s as it asks');
+        await sleep(Math.max(waits[n], (e.retryAfter || 0) * 1000 + 250));
+      }
     }
+  }
+  function answerError(status, retryAfter) {
+    var e = new Error('LRCLIB answered ' + status + (status === 429 ? ' (too many requests)' : ''));
+    var secs = parseFloat(retryAfter);
+    if (secs > 0) e.retryAfter = Math.min(secs, 120);
+    return e;
   }
   function getJsonOnce(url) {
     return new Promise(function (resolve, reject) {
       var https = null;
       try { https = req('https'); } catch (e) {}
       if (!https || !https.get) {
-        fetch(url).then(function (r) { return r.status === 404 ? null : r.ok ? r.json() : Promise.reject(new Error('LRCLIB answered ' + r.status)); }).then(resolve, reject);
+        fetch(url).then(function (r) { return r.status === 404 ? null : r.ok ? r.json() : Promise.reject(answerError(r.status, r.headers.get('retry-after'))); }).then(resolve, reject);
         return;
       }
       var r = https.get(url, { headers: { 'User-Agent': 'LyricPanel v3 (Premiere Pro panel)' }, timeout: 25000 }, function (res) {
@@ -559,7 +571,7 @@
         res.on('data', function (c) { chunks.push(c); });
         res.on('end', function () {
           if (res.statusCode === 404) return resolve(null);
-          if (res.statusCode !== 200) return reject(new Error('LRCLIB answered ' + res.statusCode));
+          if (res.statusCode !== 200) return reject(answerError(res.statusCode, res.headers['retry-after']));
           try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8'))); } catch (e) { reject(e); }
         });
       });
